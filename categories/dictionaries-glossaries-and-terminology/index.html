@@ -1,0 +1,400 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>dictionaries, glossaries and terminology - The RoundTable Resources</title>
+  <meta name="description" content="dictionaries, glossaries and terminology - The RoundTable Resources">
+  <link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+  <script>
+    (() => {
+      try {
+        const theme = localStorage.getItem("roundtable-theme");
+        if (theme === "dark" || theme === "light-contrast") {
+          document.documentElement.dataset.theme = theme;
+        }
+        const comfort = localStorage.getItem("roundtable-comfort");
+        if (comfort === "large" || comfort === "xlarge") {
+          document.documentElement.dataset.comfort = comfort;
+        }
+      } catch (error) {}
+    })();
+  </script>
+  <link rel="stylesheet" href="../../assets/styles.css">
+  <script src="../../assets/search-data.js" defer></script>
+  <script src="../../assets/site.js" defer></script>
+</head>
+<body data-site-root="../../">
+  <nav class="skip-links" aria-label="Skip links">
+    <a class="skip-link" href="#resources-heading">Skip to category resources</a>
+    <a class="skip-link" href="#search-heading">Skip to search</a>
+  </nav>
+  <details class="vision-menu">
+    <summary>Low-vision settings</summary>
+    <div class="vision-menu-panel">
+      <fieldset class="vision-theme-group">
+        <legend>Colour theme</legend>
+        <label class="vision-option" for="theme-standard">
+          <input type="radio" id="theme-standard" class="vision-option-input" name="colour-theme" value="standard" data-theme-choice checked>
+          <span>Standard theme</span>
+        </label>
+        <label class="vision-option" for="theme-dark">
+          <input type="radio" id="theme-dark" class="vision-option-input" name="colour-theme" value="dark" data-theme-choice>
+          <span>Dark high-contrast theme</span>
+        </label>
+        <label class="vision-option" for="theme-light-contrast">
+          <input type="radio" id="theme-light-contrast" class="vision-option-input" name="colour-theme" value="light-contrast" data-theme-choice>
+          <span>Light high-contrast theme</span>
+        </label>
+      </fieldset>
+      <fieldset class="vision-theme-group">
+        <legend>Text size and spacing</legend>
+        <label class="vision-option" for="comfort-normal">
+          <input type="radio" id="comfort-normal" class="vision-option-input" name="text-comfort" value="normal" data-comfort-choice checked>
+          <span>Normal text</span>
+        </label>
+        <label class="vision-option" for="comfort-large">
+          <input type="radio" id="comfort-large" class="vision-option-input" name="text-comfort" value="large" data-comfort-choice>
+          <span>Large text and comfortable spacing</span>
+        </label>
+        <label class="vision-option" for="comfort-xlarge">
+          <input type="radio" id="comfort-xlarge" class="vision-option-input" name="text-comfort" value="xlarge" data-comfort-choice>
+          <span>Extra large text and comfortable spacing</span>
+        </label>
+      </fieldset>
+    </div>
+  </details>
+  <header class="site-header">
+    <div class="header-inner">
+      <img class="site-mark" src="../../assets/site-mark.svg" alt="" aria-hidden="true" width="64" height="64">
+      <div>
+        <p class="eyebrow">The RoundTable</p>
+        <h1 id="page-title" tabindex="-1">dictionaries, glossaries and terminology - The RoundTable Resources</h1>
+      </div>
+    </div>
+  </header>
+
+  <main id="main">
+    
+    
+    <nav class="breadcrumbs" aria-label="Breadcrumb">
+      <ol>
+        <li><a href="../../index.html#dictionaries-glossaries-and-terminology">Home</a></li><li><span aria-current="page">dictionaries, glossaries and terminology</span></li>
+      </ol>
+    </nav>
+
+    
+    <section class="search-panel" aria-labelledby="search-heading">
+      <h2 id="search-heading" tabindex="-1">Search Resources</h2>
+      <form role="search" class="search-form" method="get" action="../../search.html#search-results-heading">
+        <label for="resource-search">Search by keyword</label>
+        <div class="search-row">
+          <input id="resource-search" name="q" type="search" autocomplete="off" spellcheck="false">
+          <div class="search-actions">
+            <button type="submit" id="run-search">Search</button>
+            <button type="button" id="clear-search">Clear</button>
+          </div>
+        </div>
+        <fieldset class="filter-panel">
+          <legend>Where to search</legend>
+          <label class="whole-site-option" for="search-all">
+            <input type="checkbox" id="search-all" checked>
+            <span>Search the whole site</span>
+          </label>
+          <details class="filter-details">
+            <summary>Choose categories and subcategories</summary>
+            <ul class="filter-list">
+              <li>
+  <label for="filter-academic-writing">
+    <input type="checkbox" id="filter-academic-writing" name="scope" data-search-filter value="academic writing">
+    <span>academic writing</span>
+  </label>
+
+</li>
+<li>
+  <label for="filter-braille-and-braille-displays">
+    <input type="checkbox" id="filter-braille-and-braille-displays" name="scope" data-search-filter value="braille and braille displays">
+    <span>braille and braille displays</span>
+  </label>
+
+</li>
+<li>
+  <label for="filter-dictionaries-glossaries-and-terminology">
+    <input type="checkbox" id="filter-dictionaries-glossaries-and-terminology" name="scope" data-search-filter value="dictionaries, glossaries and terminology">
+    <span>dictionaries, glossaries and terminology</span>
+  </label>
+
+</li>
+<li>
+  <label for="filter-grammar">
+    <input type="checkbox" id="filter-grammar" name="scope" data-search-filter value="grammar">
+    <span>grammar</span>
+  </label>
+
+</li>
+<li>
+  <label for="filter-interesting-articles-videos-and-podcasts">
+    <input type="checkbox" id="filter-interesting-articles-videos-and-podcasts" name="scope" data-search-filter value="interesting articles,  videos and podcasts">
+    <span>interesting articles, videos and podcasts</span>
+  </label>
+
+</li>
+<li>
+  <label for="filter-language-learning-and-practice-resources">
+    <input type="checkbox" id="filter-language-learning-and-practice-resources" name="scope" data-search-filter value="language learning and practice resources">
+    <span>All language learning and practice resources</span>
+  </label>
+<ul class="filter-sublist"><li>
+  <label for="filter-language-learning-and-practice-resources-english">
+    <input type="checkbox" id="filter-language-learning-and-practice-resources-english" name="scope" data-search-filter value="language learning and practice resources/English">
+    <span>English</span>
+  </label>
+
+</li><li>
+  <label for="filter-language-learning-and-practice-resources-french">
+    <input type="checkbox" id="filter-language-learning-and-practice-resources-french" name="scope" data-search-filter value="language learning and practice resources/French">
+    <span>French</span>
+  </label>
+
+</li><li>
+  <label for="filter-language-learning-and-practice-resources-german">
+    <input type="checkbox" id="filter-language-learning-and-practice-resources-german" name="scope" data-search-filter value="language learning and practice resources/German">
+    <span>German</span>
+  </label>
+
+</li><li>
+  <label for="filter-language-learning-and-practice-resources-greek">
+    <input type="checkbox" id="filter-language-learning-and-practice-resources-greek" name="scope" data-search-filter value="language learning and practice resources/Greek">
+    <span>Greek</span>
+  </label>
+
+</li><li>
+  <label for="filter-language-learning-and-practice-resources-italian">
+    <input type="checkbox" id="filter-language-learning-and-practice-resources-italian" name="scope" data-search-filter value="language learning and practice resources/Italian">
+    <span>Italian</span>
+  </label>
+
+</li><li>
+  <label for="filter-language-learning-and-practice-resources-mandarin">
+    <input type="checkbox" id="filter-language-learning-and-practice-resources-mandarin" name="scope" data-search-filter value="language learning and practice resources/Mandarin">
+    <span>Mandarin</span>
+  </label>
+
+</li><li>
+  <label for="filter-language-learning-and-practice-resources-resources-with-multiple-languages">
+    <input type="checkbox" id="filter-language-learning-and-practice-resources-resources-with-multiple-languages" name="scope" data-search-filter value="language learning and practice resources/resources with multiple languages">
+    <span>resources with multiple languages</span>
+  </label>
+
+</li><li>
+  <label for="filter-language-learning-and-practice-resources-romanian">
+    <input type="checkbox" id="filter-language-learning-and-practice-resources-romanian" name="scope" data-search-filter value="language learning and practice resources/Romanian">
+    <span>Romanian</span>
+  </label>
+
+</li><li>
+  <label for="filter-language-learning-and-practice-resources-russian">
+    <input type="checkbox" id="filter-language-learning-and-practice-resources-russian" name="scope" data-search-filter value="language learning and practice resources/Russian&#x27;">
+    <span>Russian&#x27;</span>
+  </label>
+
+</li><li>
+  <label for="filter-language-learning-and-practice-resources-spanish">
+    <input type="checkbox" id="filter-language-learning-and-practice-resources-spanish" name="scope" data-search-filter value="language learning and practice resources/Spanish">
+    <span>Spanish</span>
+  </label>
+
+</li></ul>
+</li>
+<li>
+  <label for="filter-media-players-podcatchers-video-descriptions-subtitles-and-captions">
+    <input type="checkbox" id="filter-media-players-podcatchers-video-descriptions-subtitles-and-captions" name="scope" data-search-filter value="media players, podcatchers, video descriptions, subtitles and captions">
+    <span>media players, podcatchers, video descriptions, subtitles and captions</span>
+  </label>
+
+</li>
+<li>
+  <label for="filter-ocr-solutions">
+    <input type="checkbox" id="filter-ocr-solutions" name="scope" data-search-filter value="OCR solutions">
+    <span>OCR solutions</span>
+  </label>
+
+</li>
+<li>
+  <label for="filter-other-courses">
+    <input type="checkbox" id="filter-other-courses" name="scope" data-search-filter value="other courses">
+    <span>other courses</span>
+  </label>
+
+</li>
+<li>
+  <label for="filter-phonetics-screen-readers-and-braille">
+    <input type="checkbox" id="filter-phonetics-screen-readers-and-braille" name="scope" data-search-filter value="phonetics, screen readers and braille">
+    <span>phonetics, screen readers and braille</span>
+  </label>
+
+</li>
+<li>
+  <label for="filter-radio-and-other-media">
+    <input type="checkbox" id="filter-radio-and-other-media" name="scope" data-search-filter value="radio and other media">
+    <span>radio and other media</span>
+  </label>
+
+</li>
+<li>
+  <label for="filter-tech-help-info-and-resources">
+    <input type="checkbox" id="filter-tech-help-info-and-resources" name="scope" data-search-filter value="tech help, info and resources">
+    <span>tech help, info and resources</span>
+  </label>
+
+</li>
+<li>
+  <label for="filter-transcription-software-tutorials-and-interpreting-equipment">
+    <input type="checkbox" id="filter-transcription-software-tutorials-and-interpreting-equipment" name="scope" data-search-filter value="transcription software, tutorials and interpreting equipment">
+    <span>transcription software, tutorials and interpreting equipment</span>
+  </label>
+
+</li>
+<li>
+  <label for="filter-translation-and-interpreting-studies-and-practice">
+    <input type="checkbox" id="filter-translation-and-interpreting-studies-and-practice" name="scope" data-search-filter value="translation and interpreting studies and practice">
+    <span>translation and interpreting studies and practice</span>
+  </label>
+
+</li>
+<li>
+  <label for="filter-translation-software-and-tutorials">
+    <input type="checkbox" id="filter-translation-software-and-tutorials" name="scope" data-search-filter value="translation software and tutorials">
+    <span>All translation software and tutorials</span>
+  </label>
+<ul class="filter-sublist"><li>
+  <label for="filter-translation-software-and-tutorials-fluency-help">
+    <input type="checkbox" id="filter-translation-software-and-tutorials-fluency-help" name="scope" data-search-filter value="translation software and tutorials/Fluency help">
+    <span>Fluency help</span>
+  </label>
+
+</li><li>
+  <label for="filter-translation-software-and-tutorials-trados-stuff">
+    <input type="checkbox" id="filter-translation-software-and-tutorials-trados-stuff" name="scope" data-search-filter value="translation software and tutorials/Trados stuff">
+    <span>Trados stuff</span>
+  </label>
+
+</li></ul>
+</li>
+<li>
+  <label for="filter-translation-interpreting-and-transcription-job-sites">
+    <input type="checkbox" id="filter-translation-interpreting-and-transcription-job-sites" name="scope" data-search-filter value="translation, interpreting and transcription job sites">
+    <span>translation, interpreting and transcription job sites</span>
+  </label>
+
+</li>
+<li>
+  <label for="filter-writing-document-readers-and-converters">
+    <input type="checkbox" id="filter-writing-document-readers-and-converters" name="scope" data-search-filter value="writing, document readers and converters">
+    <span>writing, document readers and converters</span>
+  </label>
+
+</li>
+            </ul>
+          </details>
+        </fieldset>
+      </form>
+      
+    </section>
+
+    
+    <section class="category" aria-labelledby="resources-heading">
+      <div class="category-heading">
+        <h2 id="resources-heading" tabindex="-1">Resources</h2>
+      </div>
+      <ul class="resource-list">
+<li class="resource-item" data-resource data-search="cambridge https://dictionary.cambridge.org/">
+  <a href="https://dictionary.cambridge.org/" target="_blank" rel="noopener noreferrer">Cambridge</a>
+</li>
+<li class="resource-item" data-resource data-search="cosnautas, spanish medical terminology https://www.cosnautas.com/en">
+  <a href="https://www.cosnautas.com/en" target="_blank" rel="noopener noreferrer">Cosnautas, Spanish medical terminology</a>
+</li>
+<li class="resource-item" data-resource data-search="diccionario de la lengua española, spanish monolingual dictionary https://dle.rae.es/">
+  <a href="https://dle.rae.es/" target="_blank" rel="noopener noreferrer">Diccionario de la lengua española, Spanish monolingual dictionary</a>
+</li>
+<li class="resource-item" data-resource data-search="dict.cc https://www.dict.cc/">
+  <a href="https://www.dict.cc/" target="_blank" rel="noopener noreferrer">dict.cc</a>
+</li>
+<li class="resource-item" data-resource data-search="dictionnaire des cooccurrences, french collocations https://nos-langues.canada.ca/fr/dictionnaire-des-cooccurrences/index-fra">
+  <a href="https://nos-langues.canada.ca/fr/dictionnaire-des-cooccurrences/index-fra" target="_blank" rel="noopener noreferrer">Dictionnaire des cooccurrences, French collocations</a>
+</li>
+<li class="resource-item" data-resource data-search="duden, monolingual german dictionary https://www.duden.de/">
+  <a href="https://www.duden.de/" target="_blank" rel="noopener noreferrer">Duden, monolingual German dictionary</a>
+</li>
+<li class="resource-item" data-resource data-search="eu multilingual database https://iate.europa.eu/home">
+  <a href="https://iate.europa.eu/home" target="_blank" rel="noopener noreferrer">EU multilingual database</a>
+</li>
+<li class="resource-item" data-resource data-search="eur-lex, eu law https://eur-lex.europa.eu/homepage.html">
+  <a href="https://eur-lex.europa.eu/homepage.html" target="_blank" rel="noopener noreferrer">Eur-Lex, EU law</a>
+</li>
+<li class="resource-item" data-resource data-search="la vitrine linguistique de l&#x27;office québécois de la langue française https://vitrinelinguistique.oqlf.gouv.qc.ca/index.aspx">
+  <a href="https://vitrinelinguistique.oqlf.gouv.qc.ca/index.aspx" target="_blank" rel="noopener noreferrer">La Vitrine linguistique de l&#x27;Office québécois de la langue française</a>
+</li>
+<li class="resource-item" data-resource data-search="larousse https://www.larousse.com/">
+  <a href="https://www.larousse.com/" target="_blank" rel="noopener noreferrer">larousse</a>
+</li>
+<li class="resource-item" data-resource data-search="le robert, monolingual french dictionary https://dictionnaire.lerobert.com/">
+  <a href="https://dictionnaire.lerobert.com/" target="_blank" rel="noopener noreferrer">Le Robert, monolingual French dictionary</a>
+</li>
+<li class="resource-item" data-resource data-search="leo.org https://dict.leo.org/german-english/">
+  <a href="https://dict.leo.org/german-english/" target="_blank" rel="noopener noreferrer">leo.org</a>
+</li>
+<li class="resource-item" data-resource data-search="lexicool https://www.lexicool.com/">
+  <a href="https://www.lexicool.com/" target="_blank" rel="noopener noreferrer">lexicool</a>
+</li>
+<li class="resource-item" data-resource data-search="lexilogos https://www.lexilogos.com/english/index.htm">
+  <a href="https://www.lexilogos.com/english/index.htm" target="_blank" rel="noopener noreferrer">Lexilogos</a>
+</li>
+<li class="resource-item" data-resource data-search="linguee https://www.linguee.com/">
+  <a href="https://www.linguee.com/" target="_blank" rel="noopener noreferrer">linguee</a>
+</li>
+<li class="resource-item" data-resource data-search="lingvo live multilingual dictionary https://www.lingvolive.com/en-us">
+  <a href="https://www.lingvolive.com/en-us" target="_blank" rel="noopener noreferrer">Lingvo Live multilingual dictionary</a>
+</li>
+<li class="resource-item" data-resource data-search="macquarie dictionary, australian english https://www.macquariedictionary.com.au/?time=1783756022589">
+  <a href="https://www.macquariedictionary.com.au/?time=1783756022589" target="_blank" rel="noopener noreferrer">Macquarie dictionary, Australian English</a>
+</li>
+<li class="resource-item" data-resource data-search="merriam webster https://www.merriam-webster.com/">
+  <a href="https://www.merriam-webster.com/" target="_blank" rel="noopener noreferrer">Merriam Webster</a>
+</li>
+<li class="resource-item" data-resource data-search="microsoft localisation style guide https://learn.microsoft.com/en-us/globalization/reference/microsoft-style-guides">
+  <a href="https://learn.microsoft.com/en-us/globalization/reference/microsoft-style-guides" target="_blank" rel="noopener noreferrer">Microsoft localisation style guide</a>
+</li>
+<li class="resource-item" data-resource data-search="microsoft terminology https://msit.powerbi.com/view?r=eyjrijoiodjmyju4y2ytm2m0zc00yzyxlwe1ytktnzfjymyxntaxnjq0iiwidci6ijcyzjk4ogjmltg2zjetndfhzi05mwfiltjkn2nkmdexzgi0nyisimmiojv9">
+  <a href="https://msit.powerbi.com/view?r=eyJrIjoiODJmYjU4Y2YtM2M0ZC00YzYxLWE1YTktNzFjYmYxNTAxNjQ0IiwidCI6IjcyZjk4OGJmLTg2ZjEtNDFhZi05MWFiLTJkN2NkMDExZGI0NyIsImMiOjV9" target="_blank" rel="noopener noreferrer">Microsoft terminology</a>
+</li>
+<li class="resource-item" data-resource data-search="oxford english dictionary https://www.oed.com/?tl=true">
+  <a href="https://www.oed.com/?tl=true" target="_blank" rel="noopener noreferrer">Oxford English Dictionary</a>
+</li>
+<li class="resource-item" data-resource data-search="oxford learner&#x27;s dictionaries https://www.oxfordlearnersdictionaries.com/">
+  <a href="https://www.oxfordlearnersdictionaries.com/" target="_blank" rel="noopener noreferrer">Oxford Learner&#x27;s Dictionaries</a>
+</li>
+<li class="resource-item" data-resource data-search="pons https://de.pons.com/%c3%bcbersetzung">
+  <a href="https://de.pons.com/%C3%BCbersetzung" target="_blank" rel="noopener noreferrer">pons</a>
+</li>
+<li class="resource-item" data-resource data-search="reverso.net https://www.reverso.net/text-translation">
+  <a href="https://www.reverso.net/text-translation" target="_blank" rel="noopener noreferrer">reverso.net</a>
+</li>
+<li class="resource-item" data-resource data-search="winaide, french program for dictionaries http://www.winaide.net/spip.php?article36">
+  <a href="http://www.winaide.net/spip.php?article36" target="_blank" rel="noopener noreferrer">Winaide, French program for dictionaries</a>
+</li>
+<li class="resource-item" data-resource data-search="word reference https://www.wordreference.com/">
+  <a href="https://www.wordreference.com/" target="_blank" rel="noopener noreferrer">word reference</a>
+</li>
+<li class="resource-item" data-resource data-search="wordfinder https://www.wordfinder.com/en/">
+  <a href="https://www.wordfinder.com/en/" target="_blank" rel="noopener noreferrer">WordFinder</a>
+</li>
+</ul>
+    </section>
+
+
+    <p class="back-to-top"><a href="#page-title">Back to top</a></p>
+  </main>
+
+</body>
+</html>

@@ -1,0 +1,451 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>interesting articles, videos and podcasts - The RoundTable Resources</title>
+  <meta name="description" content="interesting articles, videos and podcasts - The RoundTable Resources">
+  <link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+  <script>
+    (() => {
+      try {
+        const theme = localStorage.getItem("roundtable-theme");
+        if (theme === "dark" || theme === "light-contrast") {
+          document.documentElement.dataset.theme = theme;
+        }
+        const comfort = localStorage.getItem("roundtable-comfort");
+        if (comfort === "large" || comfort === "xlarge") {
+          document.documentElement.dataset.comfort = comfort;
+        }
+      } catch (error) {}
+    })();
+  </script>
+  <link rel="stylesheet" href="../../assets/styles.css">
+  <script src="../../assets/search-data.js" defer></script>
+  <script src="../../assets/site.js" defer></script>
+</head>
+<body data-site-root="../../">
+  <nav class="skip-links" aria-label="Skip links">
+    <a class="skip-link" href="#resources-heading">Skip to category resources</a>
+    <a class="skip-link" href="#search-heading">Skip to search</a>
+  </nav>
+  <details class="vision-menu">
+    <summary>Low-vision settings</summary>
+    <div class="vision-menu-panel">
+      <fieldset class="vision-theme-group">
+        <legend>Colour theme</legend>
+        <label class="vision-option" for="theme-standard">
+          <input type="radio" id="theme-standard" class="vision-option-input" name="colour-theme" value="standard" data-theme-choice checked>
+          <span>Standard theme</span>
+        </label>
+        <label class="vision-option" for="theme-dark">
+          <input type="radio" id="theme-dark" class="vision-option-input" name="colour-theme" value="dark" data-theme-choice>
+          <span>Dark high-contrast theme</span>
+        </label>
+        <label class="vision-option" for="theme-light-contrast">
+          <input type="radio" id="theme-light-contrast" class="vision-option-input" name="colour-theme" value="light-contrast" data-theme-choice>
+          <span>Light high-contrast theme</span>
+        </label>
+      </fieldset>
+      <fieldset class="vision-theme-group">
+        <legend>Text size and spacing</legend>
+        <label class="vision-option" for="comfort-normal">
+          <input type="radio" id="comfort-normal" class="vision-option-input" name="text-comfort" value="normal" data-comfort-choice checked>
+          <span>Normal text</span>
+        </label>
+        <label class="vision-option" for="comfort-large">
+          <input type="radio" id="comfort-large" class="vision-option-input" name="text-comfort" value="large" data-comfort-choice>
+          <span>Large text and comfortable spacing</span>
+        </label>
+        <label class="vision-option" for="comfort-xlarge">
+          <input type="radio" id="comfort-xlarge" class="vision-option-input" name="text-comfort" value="xlarge" data-comfort-choice>
+          <span>Extra large text and comfortable spacing</span>
+        </label>
+      </fieldset>
+    </div>
+  </details>
+  <header class="site-header">
+    <div class="header-inner">
+      <img class="site-mark" src="../../assets/site-mark.svg" alt="" aria-hidden="true" width="64" height="64">
+      <div>
+        <p class="eyebrow">The RoundTable</p>
+        <h1 id="page-title" tabindex="-1">interesting articles, videos and podcasts - The RoundTable Resources</h1>
+      </div>
+    </div>
+  </header>
+
+  <main id="main">
+    
+    
+    <nav class="breadcrumbs" aria-label="Breadcrumb">
+      <ol>
+        <li><a href="../../index.html#interesting-articles-videos-and-podcasts">Home</a></li><li><span aria-current="page">interesting articles, videos and podcasts</span></li>
+      </ol>
+    </nav>
+
+    
+    <section class="search-panel" aria-labelledby="search-heading">
+      <h2 id="search-heading" tabindex="-1">Search Resources</h2>
+      <form role="search" class="search-form" method="get" action="../../search.html#search-results-heading">
+        <label for="resource-search">Search by keyword</label>
+        <div class="search-row">
+          <input id="resource-search" name="q" type="search" autocomplete="off" spellcheck="false">
+          <div class="search-actions">
+            <button type="submit" id="run-search">Search</button>
+            <button type="button" id="clear-search">Clear</button>
+          </div>
+        </div>
+        <fieldset class="filter-panel">
+          <legend>Where to search</legend>
+          <label class="whole-site-option" for="search-all">
+            <input type="checkbox" id="search-all" checked>
+            <span>Search the whole site</span>
+          </label>
+          <details class="filter-details">
+            <summary>Choose categories and subcategories</summary>
+            <ul class="filter-list">
+              <li>
+  <label for="filter-academic-writing">
+    <input type="checkbox" id="filter-academic-writing" name="scope" data-search-filter value="academic writing">
+    <span>academic writing</span>
+  </label>
+
+</li>
+<li>
+  <label for="filter-braille-and-braille-displays">
+    <input type="checkbox" id="filter-braille-and-braille-displays" name="scope" data-search-filter value="braille and braille displays">
+    <span>braille and braille displays</span>
+  </label>
+
+</li>
+<li>
+  <label for="filter-dictionaries-glossaries-and-terminology">
+    <input type="checkbox" id="filter-dictionaries-glossaries-and-terminology" name="scope" data-search-filter value="dictionaries, glossaries and terminology">
+    <span>dictionaries, glossaries and terminology</span>
+  </label>
+
+</li>
+<li>
+  <label for="filter-grammar">
+    <input type="checkbox" id="filter-grammar" name="scope" data-search-filter value="grammar">
+    <span>grammar</span>
+  </label>
+
+</li>
+<li>
+  <label for="filter-interesting-articles-videos-and-podcasts">
+    <input type="checkbox" id="filter-interesting-articles-videos-and-podcasts" name="scope" data-search-filter value="interesting articles,  videos and podcasts">
+    <span>interesting articles, videos and podcasts</span>
+  </label>
+
+</li>
+<li>
+  <label for="filter-language-learning-and-practice-resources">
+    <input type="checkbox" id="filter-language-learning-and-practice-resources" name="scope" data-search-filter value="language learning and practice resources">
+    <span>All language learning and practice resources</span>
+  </label>
+<ul class="filter-sublist"><li>
+  <label for="filter-language-learning-and-practice-resources-english">
+    <input type="checkbox" id="filter-language-learning-and-practice-resources-english" name="scope" data-search-filter value="language learning and practice resources/English">
+    <span>English</span>
+  </label>
+
+</li><li>
+  <label for="filter-language-learning-and-practice-resources-french">
+    <input type="checkbox" id="filter-language-learning-and-practice-resources-french" name="scope" data-search-filter value="language learning and practice resources/French">
+    <span>French</span>
+  </label>
+
+</li><li>
+  <label for="filter-language-learning-and-practice-resources-german">
+    <input type="checkbox" id="filter-language-learning-and-practice-resources-german" name="scope" data-search-filter value="language learning and practice resources/German">
+    <span>German</span>
+  </label>
+
+</li><li>
+  <label for="filter-language-learning-and-practice-resources-greek">
+    <input type="checkbox" id="filter-language-learning-and-practice-resources-greek" name="scope" data-search-filter value="language learning and practice resources/Greek">
+    <span>Greek</span>
+  </label>
+
+</li><li>
+  <label for="filter-language-learning-and-practice-resources-italian">
+    <input type="checkbox" id="filter-language-learning-and-practice-resources-italian" name="scope" data-search-filter value="language learning and practice resources/Italian">
+    <span>Italian</span>
+  </label>
+
+</li><li>
+  <label for="filter-language-learning-and-practice-resources-mandarin">
+    <input type="checkbox" id="filter-language-learning-and-practice-resources-mandarin" name="scope" data-search-filter value="language learning and practice resources/Mandarin">
+    <span>Mandarin</span>
+  </label>
+
+</li><li>
+  <label for="filter-language-learning-and-practice-resources-resources-with-multiple-languages">
+    <input type="checkbox" id="filter-language-learning-and-practice-resources-resources-with-multiple-languages" name="scope" data-search-filter value="language learning and practice resources/resources with multiple languages">
+    <span>resources with multiple languages</span>
+  </label>
+
+</li><li>
+  <label for="filter-language-learning-and-practice-resources-romanian">
+    <input type="checkbox" id="filter-language-learning-and-practice-resources-romanian" name="scope" data-search-filter value="language learning and practice resources/Romanian">
+    <span>Romanian</span>
+  </label>
+
+</li><li>
+  <label for="filter-language-learning-and-practice-resources-russian">
+    <input type="checkbox" id="filter-language-learning-and-practice-resources-russian" name="scope" data-search-filter value="language learning and practice resources/Russian&#x27;">
+    <span>Russian&#x27;</span>
+  </label>
+
+</li><li>
+  <label for="filter-language-learning-and-practice-resources-spanish">
+    <input type="checkbox" id="filter-language-learning-and-practice-resources-spanish" name="scope" data-search-filter value="language learning and practice resources/Spanish">
+    <span>Spanish</span>
+  </label>
+
+</li></ul>
+</li>
+<li>
+  <label for="filter-media-players-podcatchers-video-descriptions-subtitles-and-captions">
+    <input type="checkbox" id="filter-media-players-podcatchers-video-descriptions-subtitles-and-captions" name="scope" data-search-filter value="media players, podcatchers, video descriptions, subtitles and captions">
+    <span>media players, podcatchers, video descriptions, subtitles and captions</span>
+  </label>
+
+</li>
+<li>
+  <label for="filter-ocr-solutions">
+    <input type="checkbox" id="filter-ocr-solutions" name="scope" data-search-filter value="OCR solutions">
+    <span>OCR solutions</span>
+  </label>
+
+</li>
+<li>
+  <label for="filter-other-courses">
+    <input type="checkbox" id="filter-other-courses" name="scope" data-search-filter value="other courses">
+    <span>other courses</span>
+  </label>
+
+</li>
+<li>
+  <label for="filter-phonetics-screen-readers-and-braille">
+    <input type="checkbox" id="filter-phonetics-screen-readers-and-braille" name="scope" data-search-filter value="phonetics, screen readers and braille">
+    <span>phonetics, screen readers and braille</span>
+  </label>
+
+</li>
+<li>
+  <label for="filter-radio-and-other-media">
+    <input type="checkbox" id="filter-radio-and-other-media" name="scope" data-search-filter value="radio and other media">
+    <span>radio and other media</span>
+  </label>
+
+</li>
+<li>
+  <label for="filter-tech-help-info-and-resources">
+    <input type="checkbox" id="filter-tech-help-info-and-resources" name="scope" data-search-filter value="tech help, info and resources">
+    <span>tech help, info and resources</span>
+  </label>
+
+</li>
+<li>
+  <label for="filter-transcription-software-tutorials-and-interpreting-equipment">
+    <input type="checkbox" id="filter-transcription-software-tutorials-and-interpreting-equipment" name="scope" data-search-filter value="transcription software, tutorials and interpreting equipment">
+    <span>transcription software, tutorials and interpreting equipment</span>
+  </label>
+
+</li>
+<li>
+  <label for="filter-translation-and-interpreting-studies-and-practice">
+    <input type="checkbox" id="filter-translation-and-interpreting-studies-and-practice" name="scope" data-search-filter value="translation and interpreting studies and practice">
+    <span>translation and interpreting studies and practice</span>
+  </label>
+
+</li>
+<li>
+  <label for="filter-translation-software-and-tutorials">
+    <input type="checkbox" id="filter-translation-software-and-tutorials" name="scope" data-search-filter value="translation software and tutorials">
+    <span>All translation software and tutorials</span>
+  </label>
+<ul class="filter-sublist"><li>
+  <label for="filter-translation-software-and-tutorials-fluency-help">
+    <input type="checkbox" id="filter-translation-software-and-tutorials-fluency-help" name="scope" data-search-filter value="translation software and tutorials/Fluency help">
+    <span>Fluency help</span>
+  </label>
+
+</li><li>
+  <label for="filter-translation-software-and-tutorials-trados-stuff">
+    <input type="checkbox" id="filter-translation-software-and-tutorials-trados-stuff" name="scope" data-search-filter value="translation software and tutorials/Trados stuff">
+    <span>Trados stuff</span>
+  </label>
+
+</li></ul>
+</li>
+<li>
+  <label for="filter-translation-interpreting-and-transcription-job-sites">
+    <input type="checkbox" id="filter-translation-interpreting-and-transcription-job-sites" name="scope" data-search-filter value="translation, interpreting and transcription job sites">
+    <span>translation, interpreting and transcription job sites</span>
+  </label>
+
+</li>
+<li>
+  <label for="filter-writing-document-readers-and-converters">
+    <input type="checkbox" id="filter-writing-document-readers-and-converters" name="scope" data-search-filter value="writing, document readers and converters">
+    <span>writing, document readers and converters</span>
+  </label>
+
+</li>
+            </ul>
+          </details>
+        </fieldset>
+      </form>
+      
+    </section>
+
+    
+    <section class="category" aria-labelledby="resources-heading">
+      <div class="category-heading">
+        <h2 id="resources-heading" tabindex="-1">Resources</h2>
+      </div>
+      <ul class="resource-list">
+<li class="resource-item" data-resource data-search="ai dubbing in 2026 https://www.rws.com/blog/ai-dubbing-in-2026/?utm_campaign=rws-blogs%2fpress-releases%2fcase-studies&amp;utm_content=365638709&amp;utm_medium=social&amp;utm_source=linkedin&amp;hss_channel=lcp-12582389">
+  <a href="https://www.rws.com/blog/ai-dubbing-in-2026/?utm_campaign=rws-blogs%2Fpress-releases%2Fcase-studies&amp;utm_content=365638709&amp;utm_medium=social&amp;utm_source=linkedin&amp;hss_channel=lcp-12582389" target="_blank" rel="noopener noreferrer">AI dubbing in 2026</a>
+</li>
+<li class="resource-item" data-resource data-search="alice in a world of wonderlands review https://www.wsj.com/articles/alice-in-a-world-of-wonderlands-the-translations-of-lewis-carrolls-masterpiece-review-1446068382">
+  <a href="https://www.wsj.com/articles/alice-in-a-world-of-wonderlands-the-translations-of-lewis-carrolls-masterpiece-review-1446068382" target="_blank" rel="noopener noreferrer">Alice in a World of Wonderlands Review</a>
+</li>
+<li class="resource-item" data-resource data-search="blind moroccan student’s journey to a phd https://al-fanarmedia.org/2022/04/blind-moroccan-student-s-journey-to-a-ph-d/">
+  <a href="https://al-fanarmedia.org/2022/04/blind-moroccan-student-s-journey-to-a-ph-d/" target="_blank" rel="noopener noreferrer">Blind Moroccan Student’s Journey to a PhD</a>
+</li>
+<li class="resource-item" data-resource data-search="challenges of learning languages without eyesight https://evengrounds.com/the-challenges-of-learning-languages-without-eyesight/?amp=1">
+  <a href="https://evengrounds.com/the-challenges-of-learning-languages-without-eyesight/?amp=1" target="_blank" rel="noopener noreferrer">Challenges of Learning Languages Without Eyesight</a>
+</li>
+<li class="resource-item" data-resource data-search="fscast 199, a visit with spanish localizer rocio casati vispero training https://blog.freedomscientific.com/fscast-199-glen-gordons-speech-at-national-coding-symposium-and-a-visit-with-spanish-localizer-rocio-casati/">
+  <a href="https://blog.freedomscientific.com/fscast-199-glen-gordons-speech-at-national-coding-symposium-and-a-visit-with-spanish-localizer-rocio-casati/" target="_blank" rel="noopener noreferrer">FSCast 199, a visit with Spanish Localizer Rocio Casati Vispero Training</a>
+</li>
+<li class="resource-item" data-resource data-search="fscast 244, a visit with ana gonzález arean, https://blog.freedomscientific.com/fscast-244-a-visit-with-ana-gonzalez-arean-plus-nicky-gillies-and-cathy-miller-from-the-louisiana-deafblind-project/">
+  <a href="https://blog.freedomscientific.com/fscast-244-a-visit-with-ana-gonzalez-arean-plus-nicky-gillies-and-cathy-miller-from-the-louisiana-deafblind-project/" target="_blank" rel="noopener noreferrer">FSCast 244, a visit with Ana González Arean,</a>
+</li>
+<li class="resource-item" data-resource data-search="guide to respeaking https://www.ai-media.tv/knowledge-hub/insights/guide-to-respeaking/">
+  <a href="https://www.ai-media.tv/knowledge-hub/insights/guide-to-respeaking/" target="_blank" rel="noopener noreferrer">Guide to Respeaking</a>
+</li>
+<li class="resource-item" data-resource data-search="harry potter, serious mistranslations chinese editions https://www.cjvlang.com/hpotter/mehelpindex.html">
+  <a href="https://www.cjvlang.com/Hpotter/mehelpindex.html" target="_blank" rel="noopener noreferrer">Harry Potter, Serious Mistranslations Chinese Editions</a>
+</li>
+<li class="resource-item" data-resource data-search="hearing loss and acoustic shock https://www.nimdzi.com/hearing-loss-and-acoustic-shock-a-silent-threat-for-interpreters/">
+  <a href="https://www.nimdzi.com/hearing-loss-and-acoustic-shock-a-silent-threat-for-interpreters/" target="_blank" rel="noopener noreferrer">Hearing Loss and Acoustic Shock</a>
+</li>
+<li class="resource-item" data-resource data-search="how does braille work in languages other than english https://nfb.org/images/nfb/publications/fr/fr45/2/fr450214.htm">
+  <a href="https://nfb.org/images/nfb/publications/fr/fr45/2/fr450214.htm" target="_blank" rel="noopener noreferrer">How Does Braille Work in Languages Other Than English</a>
+</li>
+<li class="resource-item" data-resource data-search="in the hospital, a bad translation can destroy a life https://www.npr.org/sections/health-shots/2014/10/27/358055673/in-the-hospital-a-bad-translation-can-destroy-a-life">
+  <a href="https://www.npr.org/sections/health-shots/2014/10/27/358055673/in-the-hospital-a-bad-translation-can-destroy-a-life" target="_blank" rel="noopener noreferrer">In the Hospital, a Bad Translation Can Destroy a Life</a>
+</li>
+<li class="resource-item" data-resource data-search="in touch, learning languages https://www.bbc.co.uk/programmes/m001r1kl">
+  <a href="https://www.bbc.co.uk/programmes/m001r1kl" target="_blank" rel="noopener noreferrer">In Touch, Learning Languages</a>
+</li>
+<li class="resource-item" data-resource data-search="interpreters are wizards, ai could never compete https://www.theguardian.com/commentisfree/2023/nov/01/interpreters-ai-words-sentences-artificial-intelligence-john-banville">
+  <a href="https://www.theguardian.com/commentisfree/2023/nov/01/interpreters-ai-words-sentences-artificial-intelligence-john-banville" target="_blank" rel="noopener noreferrer">Interpreters are wizards, AI could never compete</a>
+</li>
+<li class="resource-item" data-resource data-search="interpreters as translation machines, telephone interpreting challenges https://pmc.ncbi.nlm.nih.gov/articles/pmc10552352/">
+  <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC10552352/" target="_blank" rel="noopener noreferrer">Interpreters as Translation Machines, Telephone Interpreting Challenges</a>
+</li>
+<li class="resource-item" data-resource data-search="interpreting without site https://www.ciol.org.uk/interpreting-without-sight">
+  <a href="https://www.ciol.org.uk/interpreting-without-sight" target="_blank" rel="noopener noreferrer">Interpreting without Site</a>
+</li>
+<li class="resource-item" data-resource data-search="interview, bicultural and bilingual interpreting https://www.acbmedia.org/2021/08/14/s1e9-interview-with-language-interpreter/">
+  <a href="https://www.acbmedia.org/2021/08/14/s1e9-interview-with-language-interpreter/" target="_blank" rel="noopener noreferrer">Interview, bicultural and bilingual interpreting</a>
+</li>
+<li class="resource-item" data-resource data-search="is the polyglot brain different https://theworld.org/stories/2020/02/11/polyglot-brain-different-mit-researchers-are-trying-find-out">
+  <a href="https://theworld.org/stories/2020/02/11/polyglot-brain-different-mit-researchers-are-trying-find-out" target="_blank" rel="noopener noreferrer">Is the polyglot brain different</a>
+</li>
+<li class="resource-item" data-resource data-search="keep listening headphone &amp; earbud safety hearing health foundation https://hearinghealthfoundation.org/keeplistening/headphones">
+  <a href="https://hearinghealthfoundation.org/keeplistening/headphones" target="_blank" rel="noopener noreferrer">Keep Listening Headphone &amp; Earbud Safety Hearing Health Foundation</a>
+</li>
+<li class="resource-item" data-resource data-search="let’s talk about learning another language https://limitlessbb.podbean.com/e/episode-108-let-s-talk-about-learning-another-language/">
+  <a href="https://limitlessbb.podbean.com/e/episode-108-let-s-talk-about-learning-another-language/" target="_blank" rel="noopener noreferrer">Let’s Talk About Learning Another Language</a>
+</li>
+<li class="resource-item" data-resource data-search="listen up headphone use can impact your hearing https://healthcare.utah.edu/healthfeed/2024/01/listen-headphone-use-can-impact-your-hearing-health">
+  <a href="https://healthcare.utah.edu/healthfeed/2024/01/listen-headphone-use-can-impact-your-hearing-health" target="_blank" rel="noopener noreferrer">Listen Up Headphone Use Can Impact Your Hearing</a>
+</li>
+<li class="resource-item" data-resource data-search="lost in ai translation, growing reliance on language apps https://www.theguardian.com/us-news/2023/sep/07/asylum-seekers-ai-translation-apps">
+  <a href="https://www.theguardian.com/us-news/2023/sep/07/asylum-seekers-ai-translation-apps" target="_blank" rel="noopener noreferrer">Lost in AI translation, growing reliance on language apps</a>
+</li>
+<li class="resource-item" data-resource data-search="lost in translation, the state of public service interpreting in the uk https://www.bbc.co.uk/programmes/m001sm8z">
+  <a href="https://www.bbc.co.uk/programmes/m001sm8z" target="_blank" rel="noopener noreferrer">Lost in Translation, The State of Public Service Interpreting in the UK</a>
+</li>
+<li class="resource-item" data-resource data-search="machine translates literature and about 25% was flawless https://slator.com/machine-translates-literature-and-about-25-was-flawless-research-claims/">
+  <a href="https://slator.com/machine-translates-literature-and-about-25-was-flawless-research-claims/" target="_blank" rel="noopener noreferrer">Machine Translates Literature and About 25% Was Flawless</a>
+</li>
+<li class="resource-item" data-resource data-search="native english speakers are the world&#x27;s worst communicators https://www.bbc.co.uk/worklife/article/20161028-native-english-speakers-are-the-worlds-worst-communicators">
+  <a href="https://www.bbc.co.uk/worklife/article/20161028-native-english-speakers-are-the-worlds-worst-communicators" target="_blank" rel="noopener noreferrer">Native English Speakers are the World&#x27;s Worst Communicators</a>
+</li>
+<li class="resource-item" data-resource data-search="on language learning for screen reader users florian beijers https://florianbeijers.xyz/on-language-learning-with-a-screenreader">
+  <a href="https://florianbeijers.xyz/on-language-learning-with-a-screenreader" target="_blank" rel="noopener noreferrer">On Language Learning for Screen Reader Users Florian Beijers</a>
+</li>
+<li class="resource-item" data-resource data-search="president trump&#x27;s translation earpiece is just really small https://gizmodo.com/president-trumps-translation-earpiece-is-just-really-sm-1795615655">
+  <a href="https://gizmodo.com/president-trumps-translation-earpiece-is-just-really-sm-1795615655" target="_blank" rel="noopener noreferrer">President Trump&#x27;s Translation Earpiece is just Really Small</a>
+</li>
+<li class="resource-item" data-resource data-search="simultaneous interpreting, working as a visually impaired interpreter part 1 https://aibarcelona.blogspot.com/2021/05/learning-and-working-online-as-visually.html?m=1">
+  <a href="https://aibarcelona.blogspot.com/2021/05/learning-and-working-online-as-visually.html?m=1" target="_blank" rel="noopener noreferrer">Simultaneous Interpreting, working as a visually impaired interpreter Part 1</a>
+</li>
+<li class="resource-item" data-resource data-search="simultaneous interpreting, working as a visually impaired interpreter part 2 https://aibarcelona.blogspot.com/2021/05/learning-and-working-online-as-visually_26.html?m=1">
+  <a href="https://aibarcelona.blogspot.com/2021/05/learning-and-working-online-as-visually_26.html?m=1" target="_blank" rel="noopener noreferrer">Simultaneous Interpreting, working as a visually impaired interpreter Part 2</a>
+</li>
+<li class="resource-item" data-resource data-search="speaking a second language may alter your worldview https://www.thecut.com/2016/10/speaking-a-second-language-may-alter-your-worldview.html">
+  <a href="https://www.thecut.com/2016/10/speaking-a-second-language-may-alter-your-worldview.html" target="_blank" rel="noopener noreferrer">Speaking a Second Language May Alter Your Worldview</a>
+</li>
+<li class="resource-item" data-resource data-search="the 35 words you’re probably getting wrong https://www.theguardian.com/science/2017/jun/05/the-35-words-youre-probably-getting-wrong">
+  <a href="https://www.theguardian.com/science/2017/jun/05/the-35-words-youre-probably-getting-wrong" target="_blank" rel="noopener noreferrer">The 35 words you’re probably getting wrong</a>
+</li>
+<li class="resource-item" data-resource data-search="the blind programmers who created screen readers https://www.theverge.com/23203911/screen-readers-history-blind-henter-curran-teh-nvda">
+  <a href="https://www.theverge.com/23203911/screen-readers-history-blind-henter-curran-teh-nvda" target="_blank" rel="noopener noreferrer">The blind programmers who created screen readers</a>
+</li>
+<li class="resource-item" data-resource data-search="the challenge of phone interpreting, their words, your voice https://shenyunwu.wordpress.com/2014/01/16/the-challenges-of-phone-interpreting/">
+  <a href="https://shenyunwu.wordpress.com/2014/01/16/the-challenges-of-phone-interpreting/" target="_blank" rel="noopener noreferrer">The Challenge of Phone Interpreting, Their Words, Your Voice</a>
+</li>
+<li class="resource-item" data-resource data-search="the magic of untranslatable words https://www.scientificamerican.com/article/the-magic-of-untranslatable-words/">
+  <a href="https://www.scientificamerican.com/article/the-magic-of-untranslatable-words/" target="_blank" rel="noopener noreferrer">The Magic of Untranslatable Words</a>
+</li>
+<li class="resource-item" data-resource data-search="the myth of the british -ise ending https://www.jamespaulwallis.com/myth-british-ise/">
+  <a href="https://www.jamespaulwallis.com/myth-british-ise/" target="_blank" rel="noopener noreferrer">The Myth of the British -ise Ending</a>
+</li>
+<li class="resource-item" data-resource data-search="the world in an idiom what everyday phrases say about us https://www.britishcouncil.org/voices-magazine/world-idiom-what-everyday-phrases-say-about-us">
+  <a href="https://www.britishcouncil.org/voices-magazine/world-idiom-what-everyday-phrases-say-about-us" target="_blank" rel="noopener noreferrer">The world in an idiom what everyday phrases say about us</a>
+</li>
+<li class="resource-item" data-resource data-search="the world&#x27;s most efficient languages https://www.theatlantic.com/international/archive/2016/06/complex-languages/489389/">
+  <a href="https://www.theatlantic.com/international/archive/2016/06/complex-languages/489389/" target="_blank" rel="noopener noreferrer">The World&#x27;s Most Efficient Languages</a>
+</li>
+<li class="resource-item" data-resource data-search="three english experts podcast https://www.threeenglishexperts.com/">
+  <a href="https://www.threeenglishexperts.com/" target="_blank" rel="noopener noreferrer">Three English Experts podcast</a>
+</li>
+<li class="resource-item" data-resource data-search="translating accessibility - vispero https://vispero.com/resources/translating-accessibility/">
+  <a href="https://vispero.com/resources/translating-accessibility/" target="_blank" rel="noopener noreferrer">Translating Accessibility - Vispero</a>
+</li>
+<li class="resource-item" data-resource data-search="translation is an art, why translators are battling for recognition https://www.theguardian.com/books/2023/jul/03/translation-is-an-art-why-translators-are-battling-for-recognition">
+  <a href="https://www.theguardian.com/books/2023/jul/03/translation-is-an-art-why-translators-are-battling-for-recognition" target="_blank" rel="noopener noreferrer">Translation is an art, why translators are battling for recognition</a>
+</li>
+<li class="resource-item" data-resource data-search="unprofessional translation, my first time as a telephone interpreter https://unprofessionaltranslation.blogspot.com/2011/10/my-initiation-as-telephone-interpreter.html">
+  <a href="https://unprofessionaltranslation.blogspot.com/2011/10/my-initiation-as-telephone-interpreter.html" target="_blank" rel="noopener noreferrer">Unprofessional Translation, My First Time as a Telephone Interpreter</a>
+</li>
+<li class="resource-item" data-resource data-search="using adaptability to succeed as a spanish translator https://www.youtube.com/watch?app=desktop&amp;v=ywmuae67lmy">
+  <a href="https://www.youtube.com/watch?app=desktop&amp;v=yWmuaE67LMY" target="_blank" rel="noopener noreferrer">Using Adaptability to Succeed as a Spanish Translator</a>
+</li>
+<li class="resource-item" data-resource data-search="wanted, english speakers with fluency in sarcasm https://www.theguardian.com/education/2008/jan/29/furthereducation.tefl">
+  <a href="https://www.theguardian.com/education/2008/jan/29/furthereducation.tefl" target="_blank" rel="noopener noreferrer">Wanted, English Speakers with Fluency in Sarcasm</a>
+</li>
+<li class="resource-item" data-resource data-search="why is english so weirdly different from other languages https://aeon.co/essays/why-is-english-so-weirdly-different-from-other-languages">
+  <a href="https://aeon.co/essays/why-is-english-so-weirdly-different-from-other-languages" target="_blank" rel="noopener noreferrer">Why is English so Weirdly Different from Other Languages</a>
+</li>
+<li class="resource-item" data-resource data-search="why is there so much research on vision https://www.frontiersin.org/journals/psychology/articles/10.3389/fpsyg.2019.02246/full">
+  <a href="https://www.frontiersin.org/journals/psychology/articles/10.3389/fpsyg.2019.02246/full" target="_blank" rel="noopener noreferrer">Why Is There So Much Research on Vision</a>
+</li>
+</ul>
+    </section>
+
+
+    <p class="back-to-top"><a href="#page-title">Back to top</a></p>
+  </main>
+
+</body>
+</html>

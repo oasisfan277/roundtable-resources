@@ -1,0 +1,5 @@
+.DS_Store
+Thumbs.db
+server.log
+server.err.log
+*.mbox
