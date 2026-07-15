@@ -2141,8 +2141,9 @@ def publish_site(remote: str, branch: str, message: str) -> None:
     else:
         print("No website file changes to commit.")
 
+    print(f"Pushing {branch} to {remote} on GitHub...", flush=True)
     run_git(["push", remote, branch])
-    print(f"Pushed {branch} to {remote}. GitHub Pages will update shortly.")
+    print(f"Successfully pushed {branch} to {remote}. GitHub Pages will update shortly.")
 
 
 def build_site() -> tuple[int, int]:
