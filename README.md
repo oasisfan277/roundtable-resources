@@ -8,8 +8,22 @@ Every folder in `resources` gets its own generated page under `categories`. For 
 
 Search forms submit to `search.html`, which renders results from the generated `assets/search-data.js` index.
 
-To rebuild after changing the resources folder:
+To rebuild after changing the resources folder and publish the live GitHub Pages site:
 
 ```powershell
 python .\tools\build_site.py
+```
+
+That command rebuilds the local files, commits the website changes, and pushes `main` to `origin`.
+
+To rebuild locally without publishing:
+
+```powershell
+python .\tools\build_site.py --local-only
+```
+
+To use a custom commit message:
+
+```powershell
+python .\tools\build_site.py --message "Update RoundTable resources"
 ```

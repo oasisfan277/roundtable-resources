@@ -1,11 +1,13 @@
 from __future__ import annotations
 
+import argparse
 import configparser
 import html
 import json
 import os
 import re
 import shutil
+import subprocess
 import unicodedata
 from collections import defaultdict
 from dataclasses import dataclass
@@ -18,6 +20,16 @@ SOURCE_DIR = SITE_DIR.parent / "resources"
 DOWNLOADS_DIR = SITE_DIR / "downloads"
 ASSETS_DIR = SITE_DIR / "assets"
 CATEGORIES_DIR = SITE_DIR / "categories"
+PUBLISH_PATHS = (
+    ".nojekyll",
+    "README.md",
+    "index.html",
+    "search.html",
+    "assets",
+    "categories",
+    "downloads",
+    "tools/build_site.py",
+)
 
 
 @dataclass(frozen=True)
@@ -1766,7 +1778,81 @@ FAVICON_SVG = r"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
 """
 
 
-def main() -> None:
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description="Build the RoundTable Resources website and publish it to GitHub Pages."
+    )
+    parser.add_argument(
+        "--local-only",
+        action="store_true",
+        help="Build the website files without committing or pushing to GitHub.",
+    )
+    parser.add_argument(
+        "--remote",
+        default="origin",
+        help="Git remote to push to after building. Defaults to origin.",
+    )
+    parser.add_argument(
+        "--branch",
+        default="main",
+        help="Git branch that GitHub Pages publishes from. Defaults to main.",
+    )
+    parser.add_argument(
+        "--message",
+        default="Update generated site",
+        help="Commit message to use when the generated website changed.",
+    )
+    return parser.parse_args()
+
+
+def run_git(args: list[str]) -> str:
+    result = subprocess.run(
+        ["git", *args],
+        cwd=SITE_DIR,
+        text=True,
+        capture_output=True,
+    )
+    if result.returncode != 0:
+        output = (result.stderr or result.stdout).strip()
+        command = "git " + " ".join(args)
+        raise RuntimeError(f"{command} failed: {output}")
+    return result.stdout.strip()
+
+
+def ensure_publish_ready(remote: str, branch: str) -> None:
+    if run_git(["rev-parse", "--is-inside-work-tree"]) != "true":
+        raise RuntimeError(f"{SITE_DIR} is not inside a git repository.")
+
+    run_git(["remote", "get-url", remote])
+    current_branch = run_git(["branch", "--show-current"])
+    if current_branch != branch:
+        raise RuntimeError(
+            f"Publishing expects the current branch to be {branch!r}, but it is {current_branch!r}."
+        )
+
+    staged_changes = run_git(["diff", "--cached", "--name-only"]).splitlines()
+    if staged_changes:
+        raise RuntimeError(
+            "There are already staged changes. Commit or unstage them before publishing."
+        )
+
+
+def publish_site(remote: str, branch: str, message: str) -> None:
+    ensure_publish_ready(remote, branch)
+    run_git(["add", "-A", "--", *PUBLISH_PATHS])
+
+    staged_changes = run_git(["diff", "--cached", "--name-only"]).splitlines()
+    if staged_changes:
+        run_git(["commit", "-m", message])
+        print(f"Committed {len(staged_changes)} changed website files.")
+    else:
+        print("No website file changes to commit.")
+
+    run_git(["push", remote, branch])
+    print(f"Pushed {branch} to {remote}. GitHub Pages will update shortly.")
+
+
+def build_site() -> tuple[int, int]:
     resources = load_resources()
     pages = load_category_pages(resources)
     pages_by_dir = {page.source_dir: page for page in pages}
@@ -1778,6 +1864,14 @@ def main() -> None:
         output_path.parent.mkdir(parents=True, exist_ok=True)
         output_path.write_text(render_category_page(page, pages, pages_by_dir, resources), encoding="utf-8")
     print(f"Built {len(resources)} resources and {len(pages)} category pages into {SITE_DIR}")
+    return len(resources), len(pages)
+
+
+def main() -> None:
+    args = parse_args()
+    build_site()
+    if not args.local_only:
+        publish_site(args.remote, args.branch, args.message)
 
 
 if __name__ == "__main__":
