@@ -621,7 +621,7 @@ def render_archive_home_link(from_page: Path) -> str:
     <section class="archive-panel" aria-labelledby="archive-heading">
       <h2 id="archive-heading" tabindex="-1">The RoundTable archive</h2>
       <p>Read the instructions for downloading and importing the complete RoundTable list archive from January 2015 to July 2026 into Mozilla Thunderbird.</p>
-      <p><a href="{href}">The RoundTable archive from January 2015 to July 2026</a></p>
+      <p><a href="{href}" target="_blank" rel="noopener noreferrer">The RoundTable archive from January 2015 to July 2026</a></p>
     </section>
 """
 
@@ -761,7 +761,7 @@ def render_archive_page() -> str:
     <article class="archive-page" aria-labelledby="archive-instructions">
       <h2 id="archive-instructions" tabindex="-1">Download and import the archive</h2>
 {intro}
-      <p><a class="download-link" href="{download_href}" target="_blank" rel="noopener noreferrer">Download the RoundTable archive MBOX file</a></p>
+      <p><a class="download-link" href="{download_href}">Download the RoundTable archive MBOX file</a></p>
 
 {instructions}
     </article>
