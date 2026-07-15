@@ -242,7 +242,9 @@ main {
 
 .search-panel,
 .category-nav,
-.category {
+.category,
+.archive-panel,
+.archive-page {
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -256,6 +258,8 @@ main {
 .search-panel h2,
 .category-nav h2,
 .category h2,
+.archive-panel h2,
+.archive-page h2,
 .subcategory h3 {
   margin-top: 0;
   line-height: 1.2;
@@ -583,6 +587,49 @@ button:hover {
 
 .category {
   padding: 1rem;
+}
+
+.archive-panel,
+.archive-page {
+  margin-top: 1rem;
+  padding: 1rem;
+}
+
+.archive-page {
+  display: grid;
+  gap: 1rem;
+}
+
+.archive-page p {
+  margin: 0;
+}
+
+.download-link {
+  display: inline-block;
+  border: 2px solid var(--teal-dark);
+  border-radius: 6px;
+  background: var(--teal-dark);
+  color: var(--button-text);
+  font-weight: 700;
+  padding: 0.75rem 1rem;
+}
+
+.download-link:hover,
+.download-link:focus-visible {
+  background: var(--plum);
+  border-color: var(--plum);
+  color: var(--button-text);
+}
+
+.instruction-list,
+.instruction-list ul {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.instruction-list {
+  margin: 0;
+  padding-left: 1.5rem;
 }
 
 .category-heading {

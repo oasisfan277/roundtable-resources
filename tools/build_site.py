@@ -20,10 +20,15 @@ SOURCE_DIR = SITE_DIR.parent / "resources"
 DOWNLOADS_DIR = SITE_DIR / "downloads"
 ASSETS_DIR = SITE_DIR / "assets"
 CATEGORIES_DIR = SITE_DIR / "categories"
+ARCHIVE_PAGE_REL = Path("roundtable-archive.html")
+ARCHIVE_SOURCE_PATH = SITE_DIR / "The Roundtable archive" / "page and instructions for importing the list archive into Mozilla Thunderbird.txt"
+ARCHIVE_DOWNLOAD_URL = "https://drive.usercontent.google.com/download?id=1iuu-cuLNVUHtBxwHuudjLYXmcY5CdMqz&export=download&confirm=t"
 PUBLISH_PATHS = (
+    ".gitignore",
     ".nojekyll",
     "README.md",
     "index.html",
+    "roundtable-archive.html",
     "search.html",
     "assets",
     "categories",
@@ -610,10 +615,172 @@ def render_breadcrumbs(page: CategoryPage, pages_by_dir: dict[Path, CategoryPage
 """
 
 
+def render_archive_home_link(from_page: Path) -> str:
+    href = relative_href(from_page, ARCHIVE_PAGE_REL)
+    return f"""
+    <section class="archive-panel" aria-labelledby="archive-heading">
+      <h2 id="archive-heading" tabindex="-1">The RoundTable archive</h2>
+      <p>Read the instructions for downloading and importing the complete RoundTable list archive from January 2015 to July 2026 into Mozilla Thunderbird.</p>
+      <p><a href="{href}">The RoundTable archive from January 2015 to July 2026</a></p>
+    </section>
+"""
+
+
+TEXT_EMAIL_RE = re.compile(r"[\w.!#$%&'*+/=?^_`{|}~-]+@(?:[\w-]+\.)+[\w-]{2,63}")
+
+
+def normalize_archive_line(line: str) -> str:
+    return line.replace("â€¢", "•").strip()
+
+
+def render_archive_inline(text: str) -> str:
+    output: list[str] = []
+    position = 0
+    for match in TEXT_EMAIL_RE.finditer(text):
+        output.append(html.escape(text[position:match.start()]))
+        email_address = match.group(0)
+        escaped_email = html.escape(email_address)
+        output.append(f'<a href="mailto:{html.escape(email_address, quote=True)}">{escaped_email}</a>')
+        position = match.end()
+    output.append(html.escape(text[position:]))
+    return "".join(output)
+
+
+def load_archive_source() -> tuple[list[str], str, str]:
+    if not ARCHIVE_SOURCE_PATH.is_file():
+        raise RuntimeError(f"Archive page source file is missing: {ARCHIVE_SOURCE_PATH}")
+
+    lines = [normalize_archive_line(line) for line in read_text(ARCHIVE_SOURCE_PATH).splitlines()]
+    lines = [line for line in lines if line]
+    if not lines:
+        raise RuntimeError(f"Archive page source file is empty: {ARCHIVE_SOURCE_PATH}")
+
+    download_url = ARCHIVE_DOWNLOAD_URL
+    intro_lines: list[str] = []
+    instruction_lines: list[str] = []
+    found_download_url = False
+    for line in lines:
+        if line.startswith(("http://", "https://")) and not found_download_url:
+            download_url = line
+            found_download_url = True
+            continue
+        if found_download_url:
+            instruction_lines.append(line)
+        else:
+            intro_lines.append(line)
+
+    return intro_lines, download_url, render_archive_instructions(instruction_lines)
+
+
+def render_archive_instructions(lines: list[str]) -> str:
+    items: list[dict[str, object]] = []
+    paragraphs: list[str] = []
+    current: dict[str, object] | None = None
+    pending_bullet = False
+
+    def flush_current() -> None:
+        nonlocal current
+        if current is not None:
+            items.append(current)
+            current = None
+
+    for line in lines:
+        number_match = re.match(r"^\d+\.\s*(.*)$", line)
+        if number_match:
+            flush_current()
+            current = {"text": number_match.group(1).strip(), "bullets": []}
+            pending_bullet = False
+            continue
+
+        if line == "•":
+            pending_bullet = True
+            continue
+
+        if pending_bullet:
+            if current is None:
+                current = {"text": "", "bullets": []}
+            current["bullets"].append(line)  # type: ignore[index, union-attr]
+            pending_bullet = False
+            continue
+
+        if current is not None and not current["text"]:
+            current["text"] = line
+            continue
+
+        if current is not None and current["bullets"]:
+            flush_current()
+            paragraphs.append(line)
+            continue
+
+        if current is not None:
+            current["text"] = f'{current["text"]} {line}'
+            continue
+
+        paragraphs.append(line)
+
+    flush_current()
+
+    blocks: list[str] = []
+    if items:
+        blocks.append('      <ol class="instruction-list">')
+        for item in items:
+            text = render_archive_inline(str(item["text"]))
+            bullets = item["bullets"]
+            if bullets:
+                bullet_items = "\n".join(f"            <li>{render_archive_inline(str(bullet))}</li>" for bullet in bullets)
+                blocks.append(
+                    "\n".join(
+                        (
+                            f"        <li>{text}",
+                            "          <ul>",
+                            bullet_items,
+                            "          </ul>",
+                            "        </li>",
+                        )
+                    )
+                )
+            else:
+                blocks.append(f"        <li>{text}</li>")
+        blocks.append("      </ol>")
+
+    blocks.extend(f"      <p>{render_archive_inline(paragraph)}</p>" for paragraph in paragraphs)
+    return "\n".join(blocks)
+
+
+def render_archive_page() -> str:
+    intro_lines, download_url, instructions = load_archive_source()
+    intro = "\n".join(f"      <p>{render_archive_inline(line)}</p>" for line in intro_lines)
+    download_href = html.escape(download_url, quote=True)
+    content = f"""
+    <nav class="breadcrumbs" aria-label="Breadcrumb">
+      <ol>
+        <li><a href="index.html">Home</a></li>
+        <li><span aria-current="page">The RoundTable archive</span></li>
+      </ol>
+    </nav>
+    <article class="archive-page" aria-labelledby="archive-instructions">
+      <h2 id="archive-instructions" tabindex="-1">Download and import the archive</h2>
+{intro}
+      <p><a class="download-link" href="{download_href}" target="_blank" rel="noopener noreferrer">Download the RoundTable archive MBOX file</a></p>
+
+{instructions}
+    </article>
+"""
+    return render_page_shell(
+        title="The RoundTable archive from January 2015 to July 2026",
+        description="Download and import the complete RoundTable list archive into Mozilla Thunderbird.",
+        content=content,
+        from_page=ARCHIVE_PAGE_REL,
+        skip_text="Skip to archive instructions",
+        skip_href="#archive-instructions",
+    )
+
+
 def render_index(resources: list[Resource], pages: list[CategoryPage]) -> str:
     content = f"""
     {render_search_panel(pages, Path("index.html"))}
     {render_category_cards(top_level_pages(pages), Path("index.html"))}
+    {render_archive_home_link(Path("index.html"))}
 """
     return render_page_shell(
         title="The RoundTable Resources",
@@ -729,6 +896,22 @@ def search_data_for(resources: list[Resource], pages: list[CategoryPage]) -> lis
             }
         )
         item_id += 1
+
+    data.append(
+        {
+            "id": f"page-{item_id}",
+            "resultType": "page",
+            "sortGroup": 1,
+            "title": "The RoundTable archive from January 2015 to July 2026",
+            "href": ARCHIVE_PAGE_REL.as_posix(),
+            "downloadable": False,
+            "category": "",
+            "fileInfo": "Page",
+            "searchText": "roundtable archive january 2015 july 2026 thunderbird mbox import download list archive",
+            "scopes": [],
+        }
+    )
+    item_id += 1
 
     for resource in sorted(resources, key=lambda item: item.title.casefold()):
         folder = resource.source_rel.parent
@@ -1015,7 +1198,9 @@ main {
 
 .search-panel,
 .category-nav,
-.category {
+.category,
+.archive-panel,
+.archive-page {
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -1029,6 +1214,8 @@ main {
 .search-panel h2,
 .category-nav h2,
 .category h2,
+.archive-panel h2,
+.archive-page h2,
 .subcategory h3 {
   margin-top: 0;
   line-height: 1.2;
@@ -1356,6 +1543,49 @@ button:hover {
 
 .category {
   padding: 1rem;
+}
+
+.archive-panel,
+.archive-page {
+  margin-top: 1rem;
+  padding: 1rem;
+}
+
+.archive-page {
+  display: grid;
+  gap: 1rem;
+}
+
+.archive-page p {
+  margin: 0;
+}
+
+.download-link {
+  display: inline-block;
+  border: 2px solid var(--teal-dark);
+  border-radius: 6px;
+  background: var(--teal-dark);
+  color: var(--button-text);
+  font-weight: 700;
+  padding: 0.75rem 1rem;
+}
+
+.download-link:hover,
+.download-link:focus-visible {
+  background: var(--plum);
+  border-color: var(--plum);
+  color: var(--button-text);
+}
+
+.instruction-list,
+.instruction-list ul {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.instruction-list {
+  margin: 0;
+  padding-left: 1.5rem;
 }
 
 .category-heading {
@@ -2152,6 +2382,7 @@ def build_site() -> tuple[int, int]:
     pages_by_dir = {page.source_dir: page for page in pages}
     write_static_assets(resources, pages)
     (SITE_DIR / "index.html").write_text(render_index(resources, pages), encoding="utf-8")
+    (SITE_DIR / ARCHIVE_PAGE_REL).write_text(render_archive_page(), encoding="utf-8")
     (SITE_DIR / "search.html").write_text(render_search_page(pages), encoding="utf-8")
     for page in pages:
         output_path = SITE_DIR / page.page_rel

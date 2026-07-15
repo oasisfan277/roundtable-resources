@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>The RoundTable archive from January 2015 to July 2026</title>
+  <meta name="description" content="Download and import the complete RoundTable list archive into Mozilla Thunderbird.">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <script>
+    (() => {
+      try {
+        const theme = localStorage.getItem("roundtable-theme");
+        if (theme === "dark" || theme === "light-contrast") {
+          document.documentElement.dataset.theme = theme;
+        }
+        const comfort = localStorage.getItem("roundtable-comfort");
+        if (comfort === "large" || comfort === "xlarge") {
+          document.documentElement.dataset.comfort = comfort;
+        }
+      } catch (error) {}
+    })();
+  </script>
+  <link rel="stylesheet" href="assets/styles.css">
+  <script src="assets/search-data.js" defer></script>
+  <script src="assets/site.js" defer></script>
+</head>
+<body data-site-root="./">
+  <nav class="skip-links" aria-label="Skip links">
+    <a class="skip-link" href="#archive-instructions">Skip to archive instructions</a>
+    <a class="skip-link" href="#search-heading">Skip to search</a>
+  </nav>
+  <details class="vision-menu">
+    <summary>Low-vision settings</summary>
+    <div class="vision-menu-panel">
+      <fieldset class="vision-theme-group">
+        <legend>Colour theme</legend>
+        <label class="vision-option" for="theme-standard">
+          <input type="radio" id="theme-standard" class="vision-option-input" name="colour-theme" value="standard" data-theme-choice checked>
+          <span>Standard theme</span>
+        </label>
+        <label class="vision-option" for="theme-dark">
+          <input type="radio" id="theme-dark" class="vision-option-input" name="colour-theme" value="dark" data-theme-choice>
+          <span>Dark high-contrast theme</span>
+        </label>
+        <label class="vision-option" for="theme-light-contrast">
+          <input type="radio" id="theme-light-contrast" class="vision-option-input" name="colour-theme" value="light-contrast" data-theme-choice>
+          <span>Light high-contrast theme</span>
+        </label>
+      </fieldset>
+      <fieldset class="vision-theme-group">
+        <legend>Text size and spacing</legend>
+        <label class="vision-option" for="comfort-normal">
+          <input type="radio" id="comfort-normal" class="vision-option-input" name="text-comfort" value="normal" data-comfort-choice checked>
+          <span>Normal text</span>
+        </label>
+        <label class="vision-option" for="comfort-large">
+          <input type="radio" id="comfort-large" class="vision-option-input" name="text-comfort" value="large" data-comfort-choice>
+          <span>Large text and comfortable spacing</span>
+        </label>
+        <label class="vision-option" for="comfort-xlarge">
+          <input type="radio" id="comfort-xlarge" class="vision-option-input" name="text-comfort" value="xlarge" data-comfort-choice>
+          <span>Extra large text and comfortable spacing</span>
+        </label>
+      </fieldset>
+    </div>
+  </details>
+  <header class="site-header">
+    <div class="header-inner">
+      <img class="site-mark" src="assets/site-mark.svg" alt="" aria-hidden="true" width="64" height="64">
+      <div>
+        <p class="eyebrow">The RoundTable</p>
+        <h1 id="page-title" tabindex="-1">The RoundTable archive from January 2015 to July 2026</h1>
+        <p class="intro">Download and import the complete RoundTable list archive into Mozilla Thunderbird.</p>
+      </div>
+    </div>
+  </header>
+
+  <main id="main">
+    
+    <nav class="breadcrumbs" aria-label="Breadcrumb">
+      <ol>
+        <li><a href="index.html">Home</a></li>
+        <li><span aria-current="page">The RoundTable archive</span></li>
+      </ol>
+    </nav>
+    <article class="archive-page" aria-labelledby="archive-instructions">
+      <h2 id="archive-instructions" tabindex="-1">Download and import the archive</h2>
+      <p>Here is the complete archive from January 2015 until mid July 2026.</p>
+      <p>This archive is an .mbox file and needs to be imported into Mozilla Thunderbird to read it. For security reasons email addresses have been redacted.</p>
+      <p><a class="download-link" href="https://drive.usercontent.google.com/download?id=1iuu-cuLNVUHtBxwHuudjLYXmcY5CdMqz&amp;export=download&amp;confirm=t" target="_blank" rel="noopener noreferrer">Download the RoundTable archive MBOX file</a></p>
+
+      <ol class="instruction-list">
+        <li>Install Thunderbird if you don&#x27;t already have it.</li>
+        <li>Install the &quot;ImportExportTools NG&quot; add-on, which adds support for importing MBOX files.
+          <ul>
+            <li>Open Thunderbird.</li>
+            <li>Press Alt to reach the menu bar.</li>
+            <li>Go to Tools &gt; Add-ons and Themes.</li>
+            <li>Search for &quot;ImportExportTools NG&quot;.</li>
+            <li>Install it and restart Thunderbird if prompted.</li>
+          </ul>
+        </li>
+        <li>In the Folder Pane, find &quot;Local Folders&quot;. If you tab around you should find it.</li>
+        <li>When you&#x27;ve found &quot;Local Folders&quot;, press the Applications key and choose &quot;New Folder&quot;, this is where you&#x27;ll import the .mbox file into. Choose a name for the new folder and tab to &quot;Create&quot;. Import the MBOX file.
+          <ul>
+            <li>Press the Applications key (or Shift+F10) on your newly created folder. If you can&#x27;t find it, make sure you&#x27;re in the &quot;Local Folders&quot; treeview.</li>
+            <li>Choose &quot;ImportExportTools NG&quot;.</li>
+            <li>Choose &quot;Import MBOX file&quot;.</li>
+            <li>Select &quot;Import individual MBOX file.&quot;</li>
+            <li>Browse to your .mbox file and open it.</li>
+          </ul>
+        </li>
+      </ol>
+      <p>The messages should then appear in Thunderbird just like normal emails. Email me at <a href="mailto:taraowton@gmail.com">taraowton@gmail.com</a> or write to the RoundTable list at <a href="mailto:blindlanguageprofessionals@googlegroups.com">blindlanguageprofessionals@googlegroups.com</a> if you have any problems.</p>
+    </article>
+
+    <p class="back-to-top"><a href="#page-title">Back to top</a></p>
+  </main>
+
+</body>
+</html>
