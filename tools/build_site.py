@@ -23,6 +23,7 @@ CATEGORIES_DIR = SITE_DIR / "categories"
 ARCHIVE_PAGE_REL = Path("roundtable-archive.html")
 ARCHIVE_SOURCE_PATH = SITE_DIR / "The Roundtable archive" / "page and instructions for importing the list archive into Mozilla Thunderbird.txt"
 ARCHIVE_DOWNLOAD_URL = "https://drive.usercontent.google.com/download?id=1iuu-cuLNVUHtBxwHuudjLYXmcY5CdMqz&export=download&confirm=t"
+GOOGLE_GROUP_URL = "https://groups.google.com/g/blindlanguageprofessionals"
 PUBLISH_PATHS = (
     ".gitignore",
     ".nojekyll",
@@ -626,6 +627,17 @@ def render_archive_home_link(from_page: Path) -> str:
 """
 
 
+def render_community_home_link() -> str:
+    group_href = html.escape(GOOGLE_GROUP_URL, quote=True)
+    return f"""
+    <section class="community-panel" aria-labelledby="community-heading">
+      <h2 id="community-heading" tabindex="-1">The RoundTable mailing list</h2>
+      <p>Join the Google Group for blind and low vision translators, interpreters, language professionals, students, teachers, and interested colleagues.</p>
+      <p><a href="{group_href}" target="_blank" rel="noopener noreferrer">Visit the RoundTable Google Group</a></p>
+    </section>
+"""
+
+
 TEXT_EMAIL_RE = re.compile(r"[\w.!#$%&'*+/=?^_`{|}~-]+@(?:[\w-]+\.)+[\w-]{2,63}")
 
 
@@ -780,6 +792,7 @@ def render_index(resources: list[Resource], pages: list[CategoryPage]) -> str:
     content = f"""
     {render_search_panel(pages, Path("index.html"))}
     {render_category_cards(top_level_pages(pages), Path("index.html"))}
+    {render_community_home_link()}
     {render_archive_home_link(Path("index.html"))}
 """
     return render_page_shell(
@@ -896,6 +909,22 @@ def search_data_for(resources: list[Resource], pages: list[CategoryPage]) -> lis
             }
         )
         item_id += 1
+
+    data.append(
+        {
+            "id": f"page-{item_id}",
+            "resultType": "page",
+            "sortGroup": 1,
+            "title": "The RoundTable mailing list",
+            "href": GOOGLE_GROUP_URL,
+            "downloadable": False,
+            "category": "",
+            "fileInfo": "Google Group",
+            "searchText": "roundtable mailing list google group blind low vision translators interpreters language professionals",
+            "scopes": [],
+        }
+    )
+    item_id += 1
 
     data.append(
         {
@@ -1199,6 +1228,7 @@ main {
 .search-panel,
 .category-nav,
 .category,
+.community-panel,
 .archive-panel,
 .archive-page {
   background: var(--surface);
@@ -1214,6 +1244,7 @@ main {
 .search-panel h2,
 .category-nav h2,
 .category h2,
+.community-panel h2,
 .archive-panel h2,
 .archive-page h2,
 .subcategory h3 {
@@ -1545,6 +1576,7 @@ button:hover {
   padding: 1rem;
 }
 
+.community-panel,
 .archive-panel,
 .archive-page {
   margin-top: 1rem;

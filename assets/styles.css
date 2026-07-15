@@ -243,6 +243,7 @@ main {
 .search-panel,
 .category-nav,
 .category,
+.community-panel,
 .archive-panel,
 .archive-page {
   background: var(--surface);
@@ -258,6 +259,7 @@ main {
 .search-panel h2,
 .category-nav h2,
 .category h2,
+.community-panel h2,
 .archive-panel h2,
 .archive-page h2,
 .subcategory h3 {
@@ -589,6 +591,7 @@ button:hover {
   padding: 1rem;
 }
 
+.community-panel,
 .archive-panel,
 .archive-page {
   margin-top: 1rem;
