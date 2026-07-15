@@ -509,6 +509,7 @@ def render_search_results_section() -> str:
         <p id="result-count" class="status" role="status" aria-live="polite" aria-atomic="true"></p>
         <p id="no-results" class="no-results" hidden>No matching resources.</p>
         <ul id="search-results" class="resource-list search-results" hidden></ul>
+        <div data-search-pagination-bottom></div>
       </section>
 """
 
@@ -636,11 +637,12 @@ def render_category_page(page: CategoryPage, pages: list[CategoryPage], pages_by
     resource_section = ""
     if page_resources:
         resource_section = f"""
-    <section class="category" aria-labelledby="resources-heading">
+    <section class="category" aria-labelledby="resources-heading" data-resource-pagination>
       <div class="category-heading">
         <h2 id="resources-heading" tabindex="-1">Resources</h2>
       </div>
       {render_subgroups(page_resources, page.page_rel, page.source_dir)}
+      <div data-pagination-bottom></div>
     </section>
 """
     if children:
@@ -918,6 +920,7 @@ a:hover {
 a:focus-visible,
 button:focus-visible,
 input:focus-visible,
+select:focus-visible,
 summary:focus-visible {
   background: var(--focus-bg);
   color: var(--focus-text);
@@ -1055,6 +1058,16 @@ input[type="search"] {
   border: 2px solid var(--input-border);
   border-radius: 6px;
   padding: 0.75rem;
+  font: inherit;
+  background: var(--input-bg);
+  color: var(--text);
+}
+
+select {
+  min-width: 8rem;
+  border: 2px solid var(--input-border);
+  border-radius: 6px;
+  padding: 0.65rem;
   font: inherit;
   background: var(--input-bg);
   color: var(--text);
@@ -1210,6 +1223,47 @@ button:hover {
 
 .search-results {
   margin-top: 1rem;
+}
+
+.pagination-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1rem;
+  align-items: center;
+  justify-content: space-between;
+  margin: 1rem 0;
+  padding: 0.85rem;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--surface);
+}
+
+.pagination-size {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  align-items: center;
+}
+
+.pagination-size label,
+.pagination-status {
+  font-weight: 700;
+}
+
+.pagination-status {
+  margin: 0;
+  color: var(--muted);
+}
+
+.pagination-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.pagination-buttons button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
 }
 
 .sr-only {
@@ -1424,6 +1478,21 @@ button:hover {
     width: 100%;
   }
 
+  .pagination-controls,
+  .pagination-size,
+  .pagination-buttons {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .pagination-buttons {
+    width: 100%;
+  }
+
+  select {
+    width: 100%;
+  }
+
   .category-card a,
   .resource-item a {
     display: block;
@@ -1444,6 +1513,7 @@ button:hover {
   .search-panel,
   .category-nav,
   .category,
+  .pagination-controls,
   .resource-item {
     border: 1px solid CanvasText;
   }
@@ -1470,6 +1540,9 @@ SITE_JS = r"""(() => {
   const noResults = document.querySelector("#no-results");
   const resultsList = document.querySelector("#search-results");
   const resources = Array.isArray(window.ROUND_TABLE_RESOURCES) ? window.ROUND_TABLE_RESOURCES : [];
+  const pageSizeOptions = [25, 50, 75, 100];
+  const pageSizeStorageKey = "roundtable-resources-page-size";
+  let paginationControlId = 0;
 
   function savedTheme() {
     try {
@@ -1608,7 +1681,226 @@ SITE_JS = r"""(() => {
     });
   });
 
+  function savedPageSize() {
+    try {
+      const value = Number.parseInt(localStorage.getItem(pageSizeStorageKey) || "", 10);
+      if (pageSizeOptions.includes(value)) {
+        return value;
+      }
+    } catch (error) {}
+    return pageSizeOptions[0];
+  }
+
+  function savePageSize(value) {
+    try {
+      localStorage.setItem(pageSizeStorageKey, String(value));
+    } catch (error) {}
+  }
+
+  function createPaginationControls({ label, pageSizeLabel, itemNamePlural, onPrevious, onNext, onPageSizeChange }) {
+    paginationControlId += 1;
+    const selectId = `pagination-size-${paginationControlId}`;
+
+    const root = document.createElement("nav");
+    root.className = "pagination-controls";
+    root.setAttribute("aria-label", `${label} pagination`);
+    root.hidden = true;
+
+    const sizeWrapper = document.createElement("div");
+    sizeWrapper.className = "pagination-size";
+
+    const selectLabel = document.createElement("label");
+    selectLabel.htmlFor = selectId;
+    selectLabel.textContent = pageSizeLabel;
+
+    const select = document.createElement("select");
+    select.id = selectId;
+    pageSizeOptions.forEach((optionValue) => {
+      const option = document.createElement("option");
+      option.value = String(optionValue);
+      option.textContent = `${optionValue} ${itemNamePlural}`;
+      select.append(option);
+    });
+    select.addEventListener("change", () => {
+      onPageSizeChange(Number.parseInt(select.value, 10));
+    });
+
+    sizeWrapper.append(selectLabel, select);
+
+    const statusText = document.createElement("p");
+    statusText.className = "pagination-status";
+    statusText.setAttribute("aria-live", "polite");
+    statusText.setAttribute("aria-atomic", "true");
+
+    const buttonWrapper = document.createElement("div");
+    buttonWrapper.className = "pagination-buttons";
+
+    const previousButton = document.createElement("button");
+    previousButton.type = "button";
+    previousButton.textContent = "Previous";
+    previousButton.setAttribute("aria-label", `Previous page of ${label}`);
+    previousButton.addEventListener("click", onPrevious);
+
+    const nextButton = document.createElement("button");
+    nextButton.type = "button";
+    nextButton.textContent = "Next";
+    nextButton.setAttribute("aria-label", `Next page of ${label}`);
+    nextButton.addEventListener("click", onNext);
+
+    buttonWrapper.append(previousButton, nextButton);
+    root.append(sizeWrapper, statusText, buttonWrapper);
+    return { root, select, statusText, previousButton, nextButton };
+  }
+
+  function createPager({
+    containers,
+    label,
+    pageSizeLabel,
+    itemName,
+    itemNamePlural,
+    total,
+    renderRange,
+  }) {
+    let currentPage = 1;
+    let pageSize = savedPageSize();
+    const controls = containers
+      .filter(Boolean)
+      .map((container) => {
+        const control = createPaginationControls({
+          label,
+          pageSizeLabel,
+          itemNamePlural,
+          onPrevious: () => {
+            currentPage -= 1;
+            render();
+          },
+          onNext: () => {
+            currentPage += 1;
+            render();
+          },
+          onPageSizeChange: (value) => {
+            if (!pageSizeOptions.includes(value)) return;
+            pageSize = value;
+            currentPage = 1;
+            savePageSize(value);
+            render();
+          },
+        });
+        container.replaceChildren(control.root);
+        return control;
+      });
+
+    function updateControls(totalCount, start, end, pageCount) {
+      const showControls = totalCount > pageSizeOptions[0];
+      const noun = totalCount === 1 ? itemName : itemNamePlural;
+      let statusText = "";
+      if (totalCount > 0) {
+        statusText =
+          totalCount <= pageSize
+            ? `Showing all ${totalCount} ${noun}.`
+            : `Showing ${start + 1} to ${end} of ${totalCount} ${noun}. Page ${currentPage} of ${pageCount}.`;
+      }
+
+      controls.forEach((control) => {
+        control.root.hidden = !showControls;
+        control.select.value = String(pageSize);
+        control.statusText.textContent = statusText;
+        control.previousButton.disabled = currentPage <= 1;
+        control.nextButton.disabled = currentPage >= pageCount;
+      });
+    }
+
+    function render() {
+      const totalCount = total();
+      const pageCount = Math.max(1, Math.ceil(totalCount / pageSize));
+      currentPage = Math.min(Math.max(currentPage, 1), pageCount);
+      const start = totalCount === 0 ? 0 : (currentPage - 1) * pageSize;
+      const end = Math.min(start + pageSize, totalCount);
+      renderRange(start, end, totalCount, currentPage, pageCount, pageSize);
+      updateControls(totalCount, start, end, pageCount);
+    }
+
+    function hide() {
+      controls.forEach((control) => {
+        control.root.hidden = true;
+      });
+    }
+
+    return {
+      render,
+      reset() {
+        currentPage = 1;
+        render();
+      },
+      hide,
+    };
+  }
+
+  function initializeResourcePagination() {
+    const sections = Array.from(document.querySelectorAll("[data-resource-pagination]"));
+    sections.forEach((section) => {
+      const items = Array.from(section.querySelectorAll("[data-resource]"));
+      if (items.length <= pageSizeOptions[0]) return;
+
+      const heading = section.querySelector("#resources-heading, h2, h3");
+      const label = heading && heading.textContent.trim() ? heading.textContent.trim() : "Resources";
+      const pager = createPager({
+        containers: [
+          section.querySelector("[data-pagination-bottom]"),
+        ],
+        label,
+        pageSizeLabel: "Resources per page",
+        itemName: "resource",
+        itemNamePlural: "resources",
+        total: () => items.length,
+        renderRange: (start, end) => {
+          items.forEach((item, index) => {
+            item.hidden = index < start || index >= end;
+          });
+
+          Array.from(section.querySelectorAll("[data-subcategory-section]")).forEach((subsection) => {
+            const hasVisibleItems = Array.from(subsection.querySelectorAll("[data-resource]")).some(
+              (item) => !item.hidden
+            );
+            subsection.hidden = !hasVisibleItems;
+          });
+        },
+      });
+      pager.render();
+    });
+  }
+
+  initializeResourcePagination();
+
   if (!search || !clearButton || !searchAll) return;
+
+  let searchMatches = [];
+  let searchPager = null;
+
+  if (resultsSection && resultsList) {
+    searchPager = createPager({
+      containers: [
+        document.querySelector("[data-search-pagination-bottom]"),
+      ],
+      label: "Search results",
+      pageSizeLabel: "Results per page",
+      itemName: "result",
+      itemNamePlural: "results",
+      total: () => searchMatches.length,
+      renderRange: (start, end, totalCount) => {
+        resultsList.replaceChildren(...searchMatches.slice(start, end).map(resultItem));
+        resultsSection.hidden = false;
+        const hasMatches = totalCount > 0;
+        resultsList.hidden = !hasMatches;
+        noResults.hidden = hasMatches;
+        const noun = totalCount === 1 ? "result" : "results";
+        status.textContent = hasMatches
+          ? `${totalCount} ${noun} found. Showing ${start + 1} to ${end}.`
+          : "0 results found.";
+      },
+    });
+    searchPager.hide();
+  }
 
   function siteRootUrl() {
     const root = document.body.dataset.siteRoot || "./";
@@ -1635,11 +1927,15 @@ SITE_JS = r"""(() => {
 
   function clearResults() {
     if (!resultsSection || !resultsList || !noResults || !status) return;
+    searchMatches = [];
     resultsList.replaceChildren();
     resultsList.hidden = true;
     resultsSection.hidden = true;
     noResults.hidden = true;
     status.textContent = "";
+    if (searchPager) {
+      searchPager.hide();
+    }
   }
 
   function resultItem(item) {
@@ -1704,7 +2000,7 @@ SITE_JS = r"""(() => {
       return;
     }
 
-    const matches = resources
+    searchMatches = resources
       .filter((item) => {
         const textMatches = item.searchText.includes(normalizedQuery);
         return textMatches && matchesScope(item, scopes, wholeSite);
@@ -1715,12 +2011,9 @@ SITE_JS = r"""(() => {
         return a.title.localeCompare(b.title, undefined, { sensitivity: "base" });
       });
 
-    resultsList.replaceChildren(...matches.map(resultItem));
-    resultsSection.hidden = false;
-    resultsList.hidden = matches.length === 0;
-    noResults.hidden = matches.length !== 0;
-    const noun = matches.length === 1 ? "result" : "results";
-    status.textContent = `${matches.length} ${noun} found.`;
+    if (searchPager) {
+      searchPager.reset();
+    }
     if (window.location.hash === "#search-results-heading" && resultsHeading) {
       resultsHeading.focus();
     }

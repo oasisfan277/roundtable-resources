@@ -13,6 +13,9 @@
   const noResults = document.querySelector("#no-results");
   const resultsList = document.querySelector("#search-results");
   const resources = Array.isArray(window.ROUND_TABLE_RESOURCES) ? window.ROUND_TABLE_RESOURCES : [];
+  const pageSizeOptions = [25, 50, 75, 100];
+  const pageSizeStorageKey = "roundtable-resources-page-size";
+  let paginationControlId = 0;
 
   function savedTheme() {
     try {
@@ -151,7 +154,226 @@
     });
   });
 
+  function savedPageSize() {
+    try {
+      const value = Number.parseInt(localStorage.getItem(pageSizeStorageKey) || "", 10);
+      if (pageSizeOptions.includes(value)) {
+        return value;
+      }
+    } catch (error) {}
+    return pageSizeOptions[0];
+  }
+
+  function savePageSize(value) {
+    try {
+      localStorage.setItem(pageSizeStorageKey, String(value));
+    } catch (error) {}
+  }
+
+  function createPaginationControls({ label, pageSizeLabel, itemNamePlural, onPrevious, onNext, onPageSizeChange }) {
+    paginationControlId += 1;
+    const selectId = `pagination-size-${paginationControlId}`;
+
+    const root = document.createElement("nav");
+    root.className = "pagination-controls";
+    root.setAttribute("aria-label", `${label} pagination`);
+    root.hidden = true;
+
+    const sizeWrapper = document.createElement("div");
+    sizeWrapper.className = "pagination-size";
+
+    const selectLabel = document.createElement("label");
+    selectLabel.htmlFor = selectId;
+    selectLabel.textContent = pageSizeLabel;
+
+    const select = document.createElement("select");
+    select.id = selectId;
+    pageSizeOptions.forEach((optionValue) => {
+      const option = document.createElement("option");
+      option.value = String(optionValue);
+      option.textContent = `${optionValue} ${itemNamePlural}`;
+      select.append(option);
+    });
+    select.addEventListener("change", () => {
+      onPageSizeChange(Number.parseInt(select.value, 10));
+    });
+
+    sizeWrapper.append(selectLabel, select);
+
+    const statusText = document.createElement("p");
+    statusText.className = "pagination-status";
+    statusText.setAttribute("aria-live", "polite");
+    statusText.setAttribute("aria-atomic", "true");
+
+    const buttonWrapper = document.createElement("div");
+    buttonWrapper.className = "pagination-buttons";
+
+    const previousButton = document.createElement("button");
+    previousButton.type = "button";
+    previousButton.textContent = "Previous";
+    previousButton.setAttribute("aria-label", `Previous page of ${label}`);
+    previousButton.addEventListener("click", onPrevious);
+
+    const nextButton = document.createElement("button");
+    nextButton.type = "button";
+    nextButton.textContent = "Next";
+    nextButton.setAttribute("aria-label", `Next page of ${label}`);
+    nextButton.addEventListener("click", onNext);
+
+    buttonWrapper.append(previousButton, nextButton);
+    root.append(sizeWrapper, statusText, buttonWrapper);
+    return { root, select, statusText, previousButton, nextButton };
+  }
+
+  function createPager({
+    containers,
+    label,
+    pageSizeLabel,
+    itemName,
+    itemNamePlural,
+    total,
+    renderRange,
+  }) {
+    let currentPage = 1;
+    let pageSize = savedPageSize();
+    const controls = containers
+      .filter(Boolean)
+      .map((container) => {
+        const control = createPaginationControls({
+          label,
+          pageSizeLabel,
+          itemNamePlural,
+          onPrevious: () => {
+            currentPage -= 1;
+            render();
+          },
+          onNext: () => {
+            currentPage += 1;
+            render();
+          },
+          onPageSizeChange: (value) => {
+            if (!pageSizeOptions.includes(value)) return;
+            pageSize = value;
+            currentPage = 1;
+            savePageSize(value);
+            render();
+          },
+        });
+        container.replaceChildren(control.root);
+        return control;
+      });
+
+    function updateControls(totalCount, start, end, pageCount) {
+      const showControls = totalCount > pageSizeOptions[0];
+      const noun = totalCount === 1 ? itemName : itemNamePlural;
+      let statusText = "";
+      if (totalCount > 0) {
+        statusText =
+          totalCount <= pageSize
+            ? `Showing all ${totalCount} ${noun}.`
+            : `Showing ${start + 1} to ${end} of ${totalCount} ${noun}. Page ${currentPage} of ${pageCount}.`;
+      }
+
+      controls.forEach((control) => {
+        control.root.hidden = !showControls;
+        control.select.value = String(pageSize);
+        control.statusText.textContent = statusText;
+        control.previousButton.disabled = currentPage <= 1;
+        control.nextButton.disabled = currentPage >= pageCount;
+      });
+    }
+
+    function render() {
+      const totalCount = total();
+      const pageCount = Math.max(1, Math.ceil(totalCount / pageSize));
+      currentPage = Math.min(Math.max(currentPage, 1), pageCount);
+      const start = totalCount === 0 ? 0 : (currentPage - 1) * pageSize;
+      const end = Math.min(start + pageSize, totalCount);
+      renderRange(start, end, totalCount, currentPage, pageCount, pageSize);
+      updateControls(totalCount, start, end, pageCount);
+    }
+
+    function hide() {
+      controls.forEach((control) => {
+        control.root.hidden = true;
+      });
+    }
+
+    return {
+      render,
+      reset() {
+        currentPage = 1;
+        render();
+      },
+      hide,
+    };
+  }
+
+  function initializeResourcePagination() {
+    const sections = Array.from(document.querySelectorAll("[data-resource-pagination]"));
+    sections.forEach((section) => {
+      const items = Array.from(section.querySelectorAll("[data-resource]"));
+      if (items.length <= pageSizeOptions[0]) return;
+
+      const heading = section.querySelector("#resources-heading, h2, h3");
+      const label = heading && heading.textContent.trim() ? heading.textContent.trim() : "Resources";
+      const pager = createPager({
+        containers: [
+          section.querySelector("[data-pagination-bottom]"),
+        ],
+        label,
+        pageSizeLabel: "Resources per page",
+        itemName: "resource",
+        itemNamePlural: "resources",
+        total: () => items.length,
+        renderRange: (start, end) => {
+          items.forEach((item, index) => {
+            item.hidden = index < start || index >= end;
+          });
+
+          Array.from(section.querySelectorAll("[data-subcategory-section]")).forEach((subsection) => {
+            const hasVisibleItems = Array.from(subsection.querySelectorAll("[data-resource]")).some(
+              (item) => !item.hidden
+            );
+            subsection.hidden = !hasVisibleItems;
+          });
+        },
+      });
+      pager.render();
+    });
+  }
+
+  initializeResourcePagination();
+
   if (!search || !clearButton || !searchAll) return;
+
+  let searchMatches = [];
+  let searchPager = null;
+
+  if (resultsSection && resultsList) {
+    searchPager = createPager({
+      containers: [
+        document.querySelector("[data-search-pagination-bottom]"),
+      ],
+      label: "Search results",
+      pageSizeLabel: "Results per page",
+      itemName: "result",
+      itemNamePlural: "results",
+      total: () => searchMatches.length,
+      renderRange: (start, end, totalCount) => {
+        resultsList.replaceChildren(...searchMatches.slice(start, end).map(resultItem));
+        resultsSection.hidden = false;
+        const hasMatches = totalCount > 0;
+        resultsList.hidden = !hasMatches;
+        noResults.hidden = hasMatches;
+        const noun = totalCount === 1 ? "result" : "results";
+        status.textContent = hasMatches
+          ? `${totalCount} ${noun} found. Showing ${start + 1} to ${end}.`
+          : "0 results found.";
+      },
+    });
+    searchPager.hide();
+  }
 
   function siteRootUrl() {
     const root = document.body.dataset.siteRoot || "./";
@@ -178,11 +400,15 @@
 
   function clearResults() {
     if (!resultsSection || !resultsList || !noResults || !status) return;
+    searchMatches = [];
     resultsList.replaceChildren();
     resultsList.hidden = true;
     resultsSection.hidden = true;
     noResults.hidden = true;
     status.textContent = "";
+    if (searchPager) {
+      searchPager.hide();
+    }
   }
 
   function resultItem(item) {
@@ -247,7 +473,7 @@
       return;
     }
 
-    const matches = resources
+    searchMatches = resources
       .filter((item) => {
         const textMatches = item.searchText.includes(normalizedQuery);
         return textMatches && matchesScope(item, scopes, wholeSite);
@@ -258,12 +484,9 @@
         return a.title.localeCompare(b.title, undefined, { sensitivity: "base" });
       });
 
-    resultsList.replaceChildren(...matches.map(resultItem));
-    resultsSection.hidden = false;
-    resultsList.hidden = matches.length === 0;
-    noResults.hidden = matches.length !== 0;
-    const noun = matches.length === 1 ? "result" : "results";
-    status.textContent = `${matches.length} ${noun} found.`;
+    if (searchPager) {
+      searchPager.reset();
+    }
     if (window.location.hash === "#search-results-heading" && resultsHeading) {
       resultsHeading.focus();
     }

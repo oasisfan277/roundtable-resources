@@ -147,6 +147,7 @@ a:hover {
 a:focus-visible,
 button:focus-visible,
 input:focus-visible,
+select:focus-visible,
 summary:focus-visible {
   background: var(--focus-bg);
   color: var(--focus-text);
@@ -284,6 +285,16 @@ input[type="search"] {
   border: 2px solid var(--input-border);
   border-radius: 6px;
   padding: 0.75rem;
+  font: inherit;
+  background: var(--input-bg);
+  color: var(--text);
+}
+
+select {
+  min-width: 8rem;
+  border: 2px solid var(--input-border);
+  border-radius: 6px;
+  padding: 0.65rem;
   font: inherit;
   background: var(--input-bg);
   color: var(--text);
@@ -439,6 +450,47 @@ button:hover {
 
 .search-results {
   margin-top: 1rem;
+}
+
+.pagination-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1rem;
+  align-items: center;
+  justify-content: space-between;
+  margin: 1rem 0;
+  padding: 0.85rem;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--surface);
+}
+
+.pagination-size {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  align-items: center;
+}
+
+.pagination-size label,
+.pagination-status {
+  font-weight: 700;
+}
+
+.pagination-status {
+  margin: 0;
+  color: var(--muted);
+}
+
+.pagination-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.pagination-buttons button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
 }
 
 .sr-only {
@@ -653,6 +705,21 @@ button:hover {
     width: 100%;
   }
 
+  .pagination-controls,
+  .pagination-size,
+  .pagination-buttons {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .pagination-buttons {
+    width: 100%;
+  }
+
+  select {
+    width: 100%;
+  }
+
   .category-card a,
   .resource-item a {
     display: block;
@@ -673,6 +740,7 @@ button:hover {
   .search-panel,
   .category-nav,
   .category,
+  .pagination-controls,
   .resource-item {
     border: 1px solid CanvasText;
   }
