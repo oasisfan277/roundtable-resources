@@ -632,7 +632,7 @@ def render_community_home_link() -> str:
     return f"""
     <section class="community-panel" aria-labelledby="community-heading">
       <h2 id="community-heading" tabindex="-1">The RoundTable mailing list</h2>
-      <p>Join the Google Group for blind and low vision translators, interpreters, language professionals, students, teachers, and interested colleagues.</p>
+      <p>Join the Google Group for blind and low vision translators, interpreters, language professionals, students, teachers and interested colleagues.</p>
       <p><a href="{group_href}" target="_blank" rel="noopener noreferrer">Visit the RoundTable Google Group</a></p>
     </section>
 """
