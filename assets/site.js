@@ -6,6 +6,7 @@
   const search = document.querySelector("#resource-search");
   const clearButton = document.querySelector("#clear-search");
   const searchAll = document.querySelector("#search-all");
+  const filterDetails = document.querySelector("[data-category-filter-details]");
   const filterBoxes = Array.from(document.querySelectorAll("[data-search-filter]"));
   const resultsSection = document.querySelector("#search-results-section");
   const resultsHeading = document.querySelector("#search-results-heading");
@@ -350,6 +351,16 @@
   let searchMatches = [];
   let searchPager = null;
 
+  function updateFilterDetailsVisibility() {
+    if (!filterDetails) return;
+    const hideFilters = searchAll.checked;
+    filterDetails.hidden = hideFilters;
+    searchAll.setAttribute("aria-expanded", String(!hideFilters));
+    if (hideFilters) {
+      filterDetails.open = false;
+    }
+  }
+
   if (resultsSection && resultsList) {
     searchPager = createPager({
       containers: [
@@ -461,6 +472,7 @@
         box.checked = false;
       });
     }
+    updateFilterDetailsVisibility();
 
     if (!resultsSection || !resultsList || !noResults || !status) return;
 
@@ -498,12 +510,14 @@
         box.checked = false;
       });
     }
+    updateFilterDetailsVisibility();
   });
   filterBoxes.forEach((box) => {
     box.addEventListener("change", () => {
       if (box.checked) {
         searchAll.checked = false;
       }
+      updateFilterDetailsVisibility();
     });
   });
   clearButton.addEventListener("click", () => {
@@ -512,6 +526,7 @@
     filterBoxes.forEach((box) => {
       box.checked = false;
     });
+    updateFilterDetailsVisibility();
     clearResults();
     search.focus();
     if (resultsSection) {
@@ -521,5 +536,7 @@
 
   if (resultsSection) {
     applyUrlSearch();
+  } else {
+    updateFilterDetailsVisibility();
   }
 })();

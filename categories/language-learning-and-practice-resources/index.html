@@ -84,6 +84,7 @@
     </nav>
 
     
+    
     <nav class="category-nav" aria-labelledby="category-nav-heading">
       <h2 id="category-nav-heading" tabindex="-1">Subcategories</h2>
       <ul class="category-grid">
@@ -107,6 +108,8 @@
   <a href="russian/index.html" target="_blank" rel="noopener noreferrer">Russian&#x27;</a>
 </li><li class="category-card">
   <a href="spanish/index.html" target="_blank" rel="noopener noreferrer">Spanish</a>
+</li><li class="category-card">
+  <a href="textbooks-for-multiple-languages/index.html" target="_blank" rel="noopener noreferrer">textbooks for Multiple Languages</a>
 </li>
       </ul>
     </nav>
@@ -126,10 +129,10 @@
         <fieldset class="filter-panel">
           <legend>Where to search</legend>
           <label class="whole-site-option" for="search-all">
-            <input type="checkbox" id="search-all" checked>
+            <input type="checkbox" id="search-all" aria-controls="category-filter-details" aria-expanded="false" checked>
             <span>Search the whole site</span>
           </label>
-          <details class="filter-details">
+          <details id="category-filter-details" class="filter-details" data-category-filter-details hidden>
             <summary>Choose categories and subcategories</summary>
             <ul class="filter-list">
               <li>
@@ -230,6 +233,12 @@
   <label for="filter-language-learning-and-practice-resources-spanish">
     <input type="checkbox" id="filter-language-learning-and-practice-resources-spanish" name="scope" data-search-filter value="language learning and practice resources/Spanish">
     <span>Spanish</span>
+  </label>
+
+</li><li>
+  <label for="filter-language-learning-and-practice-resources-textbooks-for-multiple-languages">
+    <input type="checkbox" id="filter-language-learning-and-practice-resources-textbooks-for-multiple-languages" name="scope" data-search-filter value="language learning and practice resources/textbooks for Multiple Languages">
+    <span>textbooks for Multiple Languages</span>
   </label>
 
 </li></ul>

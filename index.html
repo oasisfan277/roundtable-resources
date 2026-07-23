@@ -71,6 +71,7 @@
         <p class="eyebrow">The RoundTable</p>
         <h1 id="page-title" tabindex="-1">The RoundTable Resources</h1>
         <p class="intro">A searchable directory of links and downloads for language learning, translation, interpreting, accessibility, screen readers, braille, and related tools.</p>
+        <p class="intro intro-note">Note that this site has been vibe coded with Codex. Some of the resources on this page are much more accessible with screen readers than others, but with the use of AI, things which previously weren&#x27;t useable can now be made pretty doable for a blind or visually-impaired language professional.</p>
       </div>
     </div>
   </header>
@@ -92,10 +93,10 @@
         <fieldset class="filter-panel">
           <legend>Where to search</legend>
           <label class="whole-site-option" for="search-all">
-            <input type="checkbox" id="search-all" checked>
+            <input type="checkbox" id="search-all" aria-controls="category-filter-details" aria-expanded="false" checked>
             <span>Search the whole site</span>
           </label>
-          <details class="filter-details">
+          <details id="category-filter-details" class="filter-details" data-category-filter-details hidden>
             <summary>Choose categories and subcategories</summary>
             <ul class="filter-list">
               <li>
@@ -196,6 +197,12 @@
   <label for="filter-language-learning-and-practice-resources-spanish">
     <input type="checkbox" id="filter-language-learning-and-practice-resources-spanish" name="scope" data-search-filter value="language learning and practice resources/Spanish">
     <span>Spanish</span>
+  </label>
+
+</li><li>
+  <label for="filter-language-learning-and-practice-resources-textbooks-for-multiple-languages">
+    <input type="checkbox" id="filter-language-learning-and-practice-resources-textbooks-for-multiple-languages" name="scope" data-search-filter value="language learning and practice resources/textbooks for Multiple Languages">
+    <span>textbooks for Multiple Languages</span>
   </label>
 
 </li></ul>

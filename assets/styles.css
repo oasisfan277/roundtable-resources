@@ -85,13 +85,15 @@
 
 :root[data-comfort="large"] .search-panel,
 :root[data-comfort="large"] .category-nav,
-:root[data-comfort="large"] .category {
+:root[data-comfort="large"] .category,
+:root[data-comfort="large"] .page-notes {
   padding: 1.25rem;
 }
 
 :root[data-comfort="xlarge"] .search-panel,
 :root[data-comfort="xlarge"] .category-nav,
-:root[data-comfort="xlarge"] .category {
+:root[data-comfort="xlarge"] .category,
+:root[data-comfort="xlarge"] .page-notes {
   padding: 1.45rem;
 }
 
@@ -236,6 +238,10 @@ h1 {
   font-size: 1.08rem;
 }
 
+.intro-note {
+  margin-top: 0.55rem;
+}
+
 main {
   padding: 1.5rem 0 2rem;
 }
@@ -243,6 +249,7 @@ main {
 .search-panel,
 .category-nav,
 .category,
+.page-notes,
 .community-panel,
 .archive-panel,
 .archive-page {
@@ -259,6 +266,7 @@ main {
 .search-panel h2,
 .category-nav h2,
 .category h2,
+.page-notes h2,
 .community-panel h2,
 .archive-panel h2,
 .archive-page h2,
@@ -591,6 +599,20 @@ button:hover {
   padding: 1rem;
 }
 
+.page-notes {
+  border-left: 4px solid var(--gold);
+  margin-top: 1rem;
+  padding: 1rem;
+}
+
+.page-notes p {
+  margin: 0.65rem 0 0;
+}
+
+.page-notes p:first-of-type {
+  margin-top: 0;
+}
+
 .community-panel,
 .archive-panel,
 .archive-page {
@@ -790,6 +812,7 @@ button:hover {
   .search-panel,
   .category-nav,
   .category,
+  .page-notes,
   .pagination-controls,
   .resource-item {
     border: 1px solid CanvasText;

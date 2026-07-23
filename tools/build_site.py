@@ -61,15 +61,23 @@ class CategoryPage:
     resource_count: int
 
 
+@dataclass(frozen=True)
+class PageNote:
+    source_rel: Path
+    target_dir: Path
+    text: str
+
+
 TYPE_LABELS = {
     ".doc": "Word document",
     ".docx": "Word document",
     ".pdf": "PDF",
     ".rtf": "RTF document",
-    ".txt": "Text file",
 }
 
 EXCLUDED_SOURCE_EXTENSIONS = {".mbox"}
+NOTE_URL_RE = re.compile(r"https?://[^\s<]+")
+TRAILING_URL_PUNCTUATION = ".,;:!?)\"]}"
 
 
 def read_text(path: Path) -> str:
@@ -252,11 +260,30 @@ def load_resources() -> list[Resource]:
     for path in sorted(SOURCE_DIR.rglob("*"), key=lambda item: item.as_posix().casefold()):
         if not path.is_file():
             continue
+        if path.suffix.lower() == ".txt":
+            continue
         if path.suffix.lower() in EXCLUDED_SOURCE_EXTENSIONS:
             continue
         resources.append(make_resource(path, used_download_names))
     remove_stale_downloads(used_download_names)
     return resources
+
+
+def load_page_notes() -> list[PageNote]:
+    if not SOURCE_DIR.exists():
+        raise FileNotFoundError(f"Could not find source folder: {SOURCE_DIR}")
+
+    notes: list[PageNote] = []
+    for path in sorted(SOURCE_DIR.rglob("*.txt"), key=lambda item: item.as_posix().casefold()):
+        if not path.is_file():
+            continue
+        rel = path.relative_to(SOURCE_DIR)
+        text = read_text(path).strip()
+        if not text:
+            continue
+        target_dir = rel.parent if rel.parent != Path(".") else Path()
+        notes.append(PageNote(source_rel=rel, target_dir=target_dir, text=text))
+    return notes
 
 
 def remove_stale_downloads(used_download_names: set[str]) -> None:
@@ -278,7 +305,7 @@ def remove_stale_downloads(used_download_names: set[str]) -> None:
                     pass
 
 
-def load_category_pages(resources: list[Resource]) -> list[CategoryPage]:
+def load_category_pages(resources: list[Resource], notes: list[PageNote]) -> list[CategoryPage]:
     source_dirs = sorted(
         (path.relative_to(SOURCE_DIR) for path in SOURCE_DIR.rglob("*") if path.is_dir()),
         key=lambda path: path.as_posix().casefold(),
@@ -286,7 +313,8 @@ def load_category_pages(resources: list[Resource]) -> list[CategoryPage]:
     pages: list[CategoryPage] = []
     for source_dir in source_dirs:
         count = sum(1 for resource in resources if is_inside_dir(resource.source_rel.parent, source_dir))
-        if count == 0:
+        note_count = sum(1 for note in notes if is_inside_dir(note.target_dir, source_dir))
+        if count == 0 and note_count == 0:
             continue
         pages.append(
             CategoryPage(
@@ -360,6 +388,7 @@ def render_page_shell(
     skip_text: str = "Skip to main content",
     skip_href: str = "#main",
     extra_skip_links: list[tuple[str, str]] | None = None,
+    header_extra: str = "",
 ) -> str:
     asset_styles = relative_href(from_page, Path("assets/styles.css"))
     asset_data = relative_href(from_page, Path("assets/search-data.js"))
@@ -368,6 +397,7 @@ def render_page_shell(
     asset_mark = relative_href(from_page, Path("assets/site-mark.svg"))
     root_href = site_root_href(from_page)
     intro = f'\n        <p class="intro">{html.escape(description)}</p>' if description else ""
+    intro = f"{intro}{header_extra}"
     meta_description = description or title
     skip_links = [(skip_text, skip_href)]
     skip_links.extend(extra_skip_links or [])
@@ -538,10 +568,10 @@ def render_search_panel(pages: list[CategoryPage], from_page: Path, include_resu
         <fieldset class="filter-panel">
           <legend>Where to search</legend>
           <label class="whole-site-option" for="search-all">
-            <input type="checkbox" id="search-all" checked>
+            <input type="checkbox" id="search-all" aria-controls="category-filter-details" aria-expanded="false" checked>
             <span>Search the whole site</span>
           </label>
-          <details class="filter-details">
+          <details id="category-filter-details" class="filter-details" data-category-filter-details hidden>
             <summary>Choose categories and subcategories</summary>
             <ul class="filter-list">
               {render_filter_options(pages)}
@@ -788,7 +818,71 @@ def render_archive_page() -> str:
     )
 
 
-def render_index(resources: list[Resource], pages: list[CategoryPage]) -> str:
+def notes_by_target_dir(notes: list[PageNote]) -> dict[Path, list[PageNote]]:
+    grouped: dict[Path, list[PageNote]] = defaultdict(list)
+    for note in notes:
+        grouped[note.target_dir].append(note)
+    for group in grouped.values():
+        group.sort(key=lambda item: item.source_rel.name.casefold())
+    return grouped
+
+
+def render_note_inline(text: str) -> str:
+    output: list[str] = []
+    position = 0
+    for match in NOTE_URL_RE.finditer(text):
+        output.append(html.escape(text[position:match.start()]))
+        url = match.group(0)
+        trailing = ""
+        while url and url[-1] in TRAILING_URL_PUNCTUATION:
+            trailing = url[-1] + trailing
+            url = url[:-1]
+        escaped_url = html.escape(url)
+        output.append(
+            f'<a href="{html.escape(url, quote=True)}" target="_blank" rel="noopener noreferrer">{escaped_url}</a>'
+        )
+        output.append(html.escape(trailing))
+        position = match.end()
+    output.append(html.escape(text[position:]))
+    return "".join(output)
+
+
+def render_page_notes(notes: list[PageNote]) -> str:
+    if not notes:
+        return ""
+
+    paragraphs: list[str] = []
+    for note in notes:
+        lines = [line.strip() for line in note.text.splitlines() if line.strip()]
+        paragraphs.extend(f"      <p>{render_note_inline(line)}</p>" for line in lines)
+    if not paragraphs:
+        return ""
+
+    return f"""
+    <section class="page-notes" aria-labelledby="page-notes-heading">
+      <h2 id="page-notes-heading" tabindex="-1">Notes</h2>
+{chr(10).join(paragraphs)}
+    </section>
+"""
+
+
+def render_intro_notes(notes: list[PageNote]) -> str:
+    paragraphs: list[str] = []
+    for note in notes:
+        lines = [line.strip() for line in note.text.splitlines() if line.strip()]
+        paragraphs.extend(
+            f'\n        <p class="intro intro-note">{render_note_inline(line)}</p>' for line in lines
+        )
+    return "".join(paragraphs)
+
+
+def note_search_text(notes: list[PageNote]) -> str:
+    return re.sub(r"\s+", " ", " ".join(note.text for note in notes)).strip().casefold()
+
+
+def render_index(resources: list[Resource], pages: list[CategoryPage], notes: list[PageNote]) -> str:
+    notes_by_dir = notes_by_target_dir(notes)
+    homepage_notes = notes_by_dir.get(Path(), [])
     content = f"""
     {render_search_panel(pages, Path("index.html"))}
     {render_category_cards(top_level_pages(pages), Path("index.html"))}
@@ -802,10 +896,13 @@ def render_index(resources: list[Resource], pages: list[CategoryPage]) -> str:
         from_page=Path("index.html"),
         skip_text="Skip to categories",
         skip_href="#category-nav-heading",
+        header_extra=render_intro_notes(homepage_notes),
     )
 
 
-def render_category_page(page: CategoryPage, pages: list[CategoryPage], pages_by_dir: dict[Path, CategoryPage], resources: list[Resource]) -> str:
+def render_category_page(page: CategoryPage, pages: list[CategoryPage], pages_by_dir: dict[Path, CategoryPage], resources: list[Resource], notes: list[PageNote]) -> str:
+    notes_by_dir = notes_by_target_dir(notes)
+    page_notes = render_page_notes(notes_by_dir.get(page.source_dir, []))
     page_resources = sorted(
         [resource for resource in resources if resource.source_rel.parent == page.source_dir],
         key=lambda item: item.title.casefold(),
@@ -828,6 +925,7 @@ def render_category_page(page: CategoryPage, pages: list[CategoryPage], pages_by
     if children:
         content = f"""
     {render_breadcrumbs(page, pages_by_dir)}
+    {page_notes}
     {child_nav}
     {render_search_panel(pages, page.page_rel)}
     {resource_section}
@@ -838,6 +936,7 @@ def render_category_page(page: CategoryPage, pages: list[CategoryPage], pages_by
     else:
         content = f"""
     {render_breadcrumbs(page, pages_by_dir)}
+    {page_notes}
     {render_search_panel(pages, page.page_rel)}
     {resource_section}
 """
@@ -889,11 +988,31 @@ def parent_category_label(page: CategoryPage) -> str:
     return " / ".join(clean_category(part) for part in parent.parts)
 
 
-def search_data_for(resources: list[Resource], pages: list[CategoryPage]) -> list[dict[str, object]]:
+def search_data_for(resources: list[Resource], pages: list[CategoryPage], notes: list[PageNote]) -> list[dict[str, object]]:
     data: list[dict[str, object]] = []
     item_id = 1
+    notes_by_dir = notes_by_target_dir(notes)
+    home_note_text = note_search_text(notes_by_dir.get(Path(), []))
+    if home_note_text:
+        data.append(
+            {
+                "id": f"page-{item_id}",
+                "resultType": "page",
+                "sortGroup": 1,
+                "title": "The RoundTable Resources",
+                "href": "index.html",
+                "downloadable": False,
+                "category": "",
+                "fileInfo": "Page",
+                "searchText": f"the roundtable resources {home_note_text}".strip().casefold(),
+                "scopes": [],
+            }
+        )
+        item_id += 1
+
     for page in sorted(pages, key=lambda item: (len(item.source_dir.parts), item.title.casefold())):
         is_subcategory = len(page.source_dir.parts) > 1
+        page_note_text = note_search_text(notes_by_dir.get(page.source_dir, []))
         data.append(
             {
                 "id": f"category-{item_id}",
@@ -904,7 +1023,7 @@ def search_data_for(resources: list[Resource], pages: list[CategoryPage]) -> lis
                 "downloadable": False,
                 "category": parent_category_label(page),
                 "fileInfo": "Subcategory" if is_subcategory else "Category",
-                "searchText": page.title.casefold(),
+                "searchText": " ".join(part for part in (page.title, page_note_text) if part).casefold(),
                 "scopes": ancestor_scopes(page.source_dir),
             }
         )
@@ -969,9 +1088,9 @@ def search_data_for(resources: list[Resource], pages: list[CategoryPage]) -> lis
     return data
 
 
-def write_static_assets(resources: list[Resource], pages: list[CategoryPage]) -> None:
+def write_static_assets(resources: list[Resource], pages: list[CategoryPage], notes: list[PageNote]) -> None:
     ASSETS_DIR.mkdir(parents=True, exist_ok=True)
-    search_json = json.dumps(search_data_for(resources, pages), ensure_ascii=False, separators=(",", ":"))
+    search_json = json.dumps(search_data_for(resources, pages, notes), ensure_ascii=False, separators=(",", ":"))
     (ASSETS_DIR / "search-data.js").write_text(
         f"window.ROUND_TABLE_RESOURCES = {search_json};\n",
         encoding="utf-8",
@@ -1070,13 +1189,15 @@ STYLES_CSS = r""":root {
 
 :root[data-comfort="large"] .search-panel,
 :root[data-comfort="large"] .category-nav,
-:root[data-comfort="large"] .category {
+:root[data-comfort="large"] .category,
+:root[data-comfort="large"] .page-notes {
   padding: 1.25rem;
 }
 
 :root[data-comfort="xlarge"] .search-panel,
 :root[data-comfort="xlarge"] .category-nav,
-:root[data-comfort="xlarge"] .category {
+:root[data-comfort="xlarge"] .category,
+:root[data-comfort="xlarge"] .page-notes {
   padding: 1.45rem;
 }
 
@@ -1221,6 +1342,10 @@ h1 {
   font-size: 1.08rem;
 }
 
+.intro-note {
+  margin-top: 0.55rem;
+}
+
 main {
   padding: 1.5rem 0 2rem;
 }
@@ -1228,6 +1353,7 @@ main {
 .search-panel,
 .category-nav,
 .category,
+.page-notes,
 .community-panel,
 .archive-panel,
 .archive-page {
@@ -1244,6 +1370,7 @@ main {
 .search-panel h2,
 .category-nav h2,
 .category h2,
+.page-notes h2,
 .community-panel h2,
 .archive-panel h2,
 .archive-page h2,
@@ -1576,6 +1703,20 @@ button:hover {
   padding: 1rem;
 }
 
+.page-notes {
+  border-left: 4px solid var(--gold);
+  margin-top: 1rem;
+  padding: 1rem;
+}
+
+.page-notes p {
+  margin: 0.65rem 0 0;
+}
+
+.page-notes p:first-of-type {
+  margin-top: 0;
+}
+
 .community-panel,
 .archive-panel,
 .archive-page {
@@ -1775,6 +1916,7 @@ button:hover {
   .search-panel,
   .category-nav,
   .category,
+  .page-notes,
   .pagination-controls,
   .resource-item {
     border: 1px solid CanvasText;
@@ -1795,6 +1937,7 @@ SITE_JS = r"""(() => {
   const search = document.querySelector("#resource-search");
   const clearButton = document.querySelector("#clear-search");
   const searchAll = document.querySelector("#search-all");
+  const filterDetails = document.querySelector("[data-category-filter-details]");
   const filterBoxes = Array.from(document.querySelectorAll("[data-search-filter]"));
   const resultsSection = document.querySelector("#search-results-section");
   const resultsHeading = document.querySelector("#search-results-heading");
@@ -2139,6 +2282,16 @@ SITE_JS = r"""(() => {
   let searchMatches = [];
   let searchPager = null;
 
+  function updateFilterDetailsVisibility() {
+    if (!filterDetails) return;
+    const hideFilters = searchAll.checked;
+    filterDetails.hidden = hideFilters;
+    searchAll.setAttribute("aria-expanded", String(!hideFilters));
+    if (hideFilters) {
+      filterDetails.open = false;
+    }
+  }
+
   if (resultsSection && resultsList) {
     searchPager = createPager({
       containers: [
@@ -2250,6 +2403,7 @@ SITE_JS = r"""(() => {
         box.checked = false;
       });
     }
+    updateFilterDetailsVisibility();
 
     if (!resultsSection || !resultsList || !noResults || !status) return;
 
@@ -2287,12 +2441,14 @@ SITE_JS = r"""(() => {
         box.checked = false;
       });
     }
+    updateFilterDetailsVisibility();
   });
   filterBoxes.forEach((box) => {
     box.addEventListener("change", () => {
       if (box.checked) {
         searchAll.checked = false;
       }
+      updateFilterDetailsVisibility();
     });
   });
   clearButton.addEventListener("click", () => {
@@ -2301,6 +2457,7 @@ SITE_JS = r"""(() => {
     filterBoxes.forEach((box) => {
       box.checked = false;
     });
+    updateFilterDetailsVisibility();
     clearResults();
     search.focus();
     if (resultsSection) {
@@ -2310,6 +2467,8 @@ SITE_JS = r"""(() => {
 
   if (resultsSection) {
     applyUrlSearch();
+  } else {
+    updateFilterDetailsVisibility();
   }
 })();
 """
@@ -2410,17 +2569,18 @@ def publish_site(remote: str, branch: str, message: str) -> None:
 
 def build_site() -> tuple[int, int]:
     resources = load_resources()
-    pages = load_category_pages(resources)
+    notes = load_page_notes()
+    pages = load_category_pages(resources, notes)
     pages_by_dir = {page.source_dir: page for page in pages}
-    write_static_assets(resources, pages)
-    (SITE_DIR / "index.html").write_text(render_index(resources, pages), encoding="utf-8")
+    write_static_assets(resources, pages, notes)
+    (SITE_DIR / "index.html").write_text(render_index(resources, pages, notes), encoding="utf-8")
     (SITE_DIR / ARCHIVE_PAGE_REL).write_text(render_archive_page(), encoding="utf-8")
     (SITE_DIR / "search.html").write_text(render_search_page(pages), encoding="utf-8")
     for page in pages:
         output_path = SITE_DIR / page.page_rel
         output_path.parent.mkdir(parents=True, exist_ok=True)
-        output_path.write_text(render_category_page(page, pages, pages_by_dir, resources), encoding="utf-8")
-    print(f"Built {len(resources)} resources and {len(pages)} category pages into {SITE_DIR}")
+        output_path.write_text(render_category_page(page, pages, pages_by_dir, resources, notes), encoding="utf-8")
+    print(f"Built {len(resources)} resources, {len(notes)} page notes and {len(pages)} category pages into {SITE_DIR}")
     return len(resources), len(pages)
 
 
