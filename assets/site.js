@@ -422,6 +422,38 @@
     }
   }
 
+  function appendTitleText(target, item) {
+    const segments = Array.isArray(item.titleSegments) ? item.titleSegments : [];
+    if (segments.length === 0) {
+      target.textContent = item.title;
+      return;
+    }
+
+    const onlySegment = segments.length === 1 ? segments[0] : null;
+    if (
+      onlySegment &&
+      typeof onlySegment.lang === "string" &&
+      onlySegment.lang &&
+      typeof onlySegment.text === "string"
+    ) {
+      target.lang = onlySegment.lang;
+      target.textContent = onlySegment.text;
+      return;
+    }
+
+    segments.forEach((segment) => {
+      if (!segment || typeof segment.text !== "string" || segment.text.length === 0) return;
+      if (typeof segment.lang === "string" && segment.lang) {
+        const span = document.createElement("span");
+        span.lang = segment.lang;
+        span.textContent = segment.text;
+        target.append(span);
+      } else {
+        target.append(document.createTextNode(segment.text));
+      }
+    });
+  }
+
   function resultItem(item) {
     const listItem = document.createElement("li");
     listItem.className = "resource-item";
@@ -434,7 +466,7 @@
       link.target = "_blank";
       link.rel = "noopener noreferrer";
     }
-    link.textContent = item.title;
+    appendTitleText(link, item);
     listItem.append(link);
 
     if (item.fileInfo) {

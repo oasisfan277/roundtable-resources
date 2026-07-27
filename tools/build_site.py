@@ -12,7 +12,7 @@ import unicodedata
 from collections import defaultdict
 from dataclasses import dataclass
 from pathlib import Path
-from urllib.parse import quote
+from urllib.parse import parse_qs, quote, urlparse
 
 
 SITE_DIR = Path(__file__).resolve().parents[1]
@@ -78,6 +78,396 @@ TYPE_LABELS = {
 EXCLUDED_SOURCE_EXTENSIONS = {".mbox"}
 NOTE_URL_RE = re.compile(r"https?://[^\s<]+")
 TRAILING_URL_PUNCTUATION = ".,;:!?)\"]}"
+LANGUAGE_TITLE_SEGMENTS: dict[str, tuple[tuple[str, str], ...]] = {
+    "2 Heures de Perdues": (("fr", "2 Heures de Perdues"),),
+    "21 JOURS DANS LA PEAU D'UN AVEUGLE": (("fr", "21 JOURS DANS LA PEAU D'UN AVEUGLE"),),
+    "Accesibilidad para no videntes en HTML - Leandro Benítez - YouTube": (
+        ("es", "Accesibilidad para no videntes en HTML - Leandro Benítez - YouTube"),
+    ),
+    "acontece que no es poco": (("es", "acontece que no es poco"),),
+    "Affaires sensibles": (("fr", "Affaires sensibles"),),
+    "Banque de dépannage linguistique": (("fr", "Banque de dépannage linguistique"),),
+    "Code braille français uniformisé": (("fr", "Code braille français uniformisé"),),
+    "Conseils pratiques pour réussir votre carrière en Allemagne": (
+        ("fr", "Conseils pratiques pour réussir votre carrière en Allemagne"),
+    ),
+    "Cosnautas, Spanish medical terminology": (
+        ("es", "Cosnautas"),
+        ("", ", Spanish medical terminology"),
+    ),
+    "Criminopatía": (("es", "Criminopatía"),),
+    "Diccionario de la lengua española, Spanish monolingual dictionary": (
+        ("es", "Diccionario de la lengua española"),
+        ("", ", Spanish monolingual dictionary"),
+    ),
+    "Dictionnaire des cooccurrences, French collocations": (
+        ("fr", "Dictionnaire des cooccurrences"),
+        ("", ", French collocations"),
+    ),
+    "Duden, monolingual German dictionary": (
+        ("de", "Duden"),
+        ("", ", monolingual German dictionary"),
+    ),
+    "Die Übersetzerin Sonja Finck als Wortakrobatin": (
+        ("de", "Die Übersetzerin Sonja Finck als Wortakrobatin"),
+    ),
+    "DBSV, YouTube": (("de", "DBSV, YouTube"),),
+    "Documentos RNE": (("es", "Documentos RNE"),),
+    "El Faro": (("es", "El Faro"),),
+    "entrevue sur les nouvelles technologies et la déficience visuelle": (
+        ("fr", "entrevue sur les nouvelles technologies et la déficience visuelle"),
+    ),
+    "Español con Juan": (("es", "Español con Juan"),),
+    "Estirando el chicle": (("es", "Estirando el chicle"),),
+    "FloodCast": (("fr", "FloodCast"),),
+    "Greta, iOS and Android app for audio described films in German": (
+        ("de", "Greta"),
+        ("", ", iOS and Android app for audio described films in German"),
+    ),
+    "Groupes de Discussions, DV": (("fr", "Groupes de Discussions, DV"),),
+    "Guide du Rédacteur, French writing guide": (
+        ("fr", "Guide du Rédacteur"),
+        ("", ", French writing guide"),
+    ),
+    "Hommage aux traducteurs et traductrices de par le monde": (
+        ("fr", "Hommage aux traducteurs et traductrices de par le monde"),
+    ),
+    "Hoy en el País": (("es", "Hoy en el País"),),
+    "Institut Nazareth et Louis-Braille (INLB)": (("fr", "Institut Nazareth et Louis-Braille (INLB)"),),
+    "Interprète officiel, qui se cache derrière la voix de Donald Trump": (
+        ("fr", "Interprète officiel, qui se cache derrière la voix de Donald Trump"),
+    ),
+    "JOURNAL EN FRANÇAIS FACILE": (("fr", "JOURNAL EN FRANÇAIS FACILE"),),
+    "La Bibliothèque Braille Romande": (("fr", "La Bibliothèque Braille Romande"),),
+    "La Escóbula de la Brújula": (("es", "La Escóbula de la Brújula"),),
+    "La Ruina": (("es", "La Ruina"),),
+    "La Vitrine linguistique de l'Office québécois de la langue française": (
+        ("fr", "La Vitrine linguistique de l'Office québécois de la langue française"),
+    ),
+    "larousse": (("fr", "larousse"),),
+    "Le braille, la «lecture par les doigts», en cinq dates clefs": (
+        ("fr", "Le braille, la «lecture par les doigts», en cinq dates clefs"),
+    ),
+    "Le Robert, monolingual French dictionary": (
+        ("fr", "Le Robert"),
+        ("", ", monolingual French dictionary"),
+    ),
+    "leo.org": (("de", "leo.org"),),
+    "Les Pieds sur terre": (("fr", "Les Pieds sur terre"),),
+    "Légende, better to find the podcast episodes in a podcatcher": (
+        ("fr", "Légende"),
+        ("", ", better to find the podcast episodes in a podcatcher"),
+    ),
+    "L’anglais est faite d’emprunts au français, souligne Bernard Cerquiglini": (
+        ("fr", "L’anglais est faite d’emprunts au français, souligne Bernard Cerquiglini"),
+    ),
+    "Mediengemeinschaft für blinde, seh- und lesebehinderte Menschen": (
+        ("de", "Mediengemeinschaft für blinde, seh- und lesebehinderte Menschen"),
+    ),
+    "Nadie Sabe Nada": (("es", "Nadie Sabe Nada"),),
+    "podcasts de RNE": (("es", "podcasts de RNE"),),
+    "Polyglottes dans leur cerveau, un traitement étrange de la langue maternelle": (
+        ("fr", "Polyglottes dans leur cerveau, un traitement étrange de la langue maternelle"),
+    ),
+    "pons": (("de", "pons"),),
+    "Radio Ambulante": (("es", "Radio Ambulante"),),
+    "Sofá Sonoro": (("es", "Sofá Sonoro"),),
+    "Thomas Weiler, Er übersetzt die Stimmen Osteuropas": (
+        ("de", "Thomas Weiler, Er übersetzt die Stimmen Osteuropas"),
+    ),
+    "tiflolibros, ebooks mainly in Spanish": (
+        ("es", "tiflolibros"),
+        ("", ", ebooks mainly in Spanish"),
+    ),
+    "Tiflonexos Servicios para personas con discapacidad visual": (
+        ("es", "Tiflonexos Servicios para personas con discapacidad visual"),
+    ),
+    "Transfert": (("fr", "Transfert"),),
+    "Video sobre la interpretación simultánea": (("es", "Video sobre la interpretación simultánea"),),
+    "Winaide, French program for dictionaries": (
+        ("fr", "Winaide"),
+        ("", ", French program for dictionaries"),
+    ),
+}
+
+for _title, _segments in LANGUAGE_TITLE_SEGMENTS.items():
+    if "".join(text for _, text in _segments) != _title:
+        raise ValueError(f"Language title segments do not match title: {_title}")
+
+LANGUAGE_NAME_TO_CODE = {
+    "afrikaans": "af",
+    "albanian": "sq",
+    "amharic": "am",
+    "arabic": "ar",
+    "armenian": "hy",
+    "azerbaijani": "az",
+    "basque": "eu",
+    "belarusian": "be",
+    "bengali": "bn",
+    "bosnian": "bs",
+    "bulgarian": "bg",
+    "burmese": "my",
+    "catalan": "ca",
+    "chinese": "zh",
+    "croatian": "hr",
+    "czech": "cs",
+    "danish": "da",
+    "dutch": "nl",
+    "english": "en",
+    "estonian": "et",
+    "farsi": "fa",
+    "finnish": "fi",
+    "french": "fr",
+    "georgian": "ka",
+    "german": "de",
+    "greek": "el",
+    "gujarati": "gu",
+    "hebrew": "he",
+    "hindi": "hi",
+    "hungarian": "hu",
+    "icelandic": "is",
+    "indonesian": "id",
+    "irish": "ga",
+    "italian": "it",
+    "japanese": "ja",
+    "kannada": "kn",
+    "khmer": "km",
+    "korean": "ko",
+    "lao": "lo",
+    "latvian": "lv",
+    "lithuanian": "lt",
+    "macedonian": "mk",
+    "malay": "ms",
+    "malayalam": "ml",
+    "mandarin": "zh",
+    "marathi": "mr",
+    "nepali": "ne",
+    "norwegian": "no",
+    "persian": "fa",
+    "polish": "pl",
+    "portuguese": "pt",
+    "punjabi": "pa",
+    "romanian": "ro",
+    "russian": "ru",
+    "serbian": "sr",
+    "slovak": "sk",
+    "slovenian": "sl",
+    "spanish": "es",
+    "swahili": "sw",
+    "swedish": "sv",
+    "tagalog": "tl",
+    "tamil": "ta",
+    "telugu": "te",
+    "thai": "th",
+    "turkish": "tr",
+    "ukrainian": "uk",
+    "urdu": "ur",
+    "vietnamese": "vi",
+    "welsh": "cy",
+}
+
+LANGUAGE_TLD_TO_CODE = {
+    "ae": "ar",
+    "am": "hy",
+    "ar": "es",
+    "at": "de",
+    "be": "nl",
+    "bg": "bg",
+    "br": "pt",
+    "ca": "fr",
+    "ch": "de",
+    "cl": "es",
+    "cn": "zh",
+    "co": "es",
+    "cz": "cs",
+    "de": "de",
+    "dk": "da",
+    "ee": "et",
+    "eg": "ar",
+    "es": "es",
+    "fi": "fi",
+    "fr": "fr",
+    "gr": "el",
+    "hk": "zh",
+    "hu": "hu",
+    "il": "he",
+    "in": "hi",
+    "ir": "fa",
+    "is": "is",
+    "it": "it",
+    "jp": "ja",
+    "kr": "ko",
+    "lt": "lt",
+    "lv": "lv",
+    "mx": "es",
+    "nl": "nl",
+    "no": "no",
+    "pl": "pl",
+    "pt": "pt",
+    "ro": "ro",
+    "rs": "sr",
+    "ru": "ru",
+    "sa": "ar",
+    "se": "sv",
+    "si": "sl",
+    "sk": "sk",
+    "th": "th",
+    "tr": "tr",
+    "tw": "zh",
+    "ua": "uk",
+    "vn": "vi",
+}
+
+URL_LANGUAGE_PARAMS = {"hl", "lang", "language", "locale", "ui_locales"}
+LATIN_LANGUAGE_CLUES = {
+    "ca": {
+        "chars": set("àçéèíïóòúü"),
+        "words": {"aquest", "aquesta", "amb", "del", "dels", "els", "les", "per", "que"},
+    },
+    "cs": {
+        "chars": set("áčďéěíňóřšťúůýž"),
+        "words": {"cesky", "česky", "jako", "který", "pro", "se", "ve"},
+    },
+    "da": {
+        "chars": set("æøå"),
+        "words": {"at", "det", "en", "for", "med", "og", "på", "til"},
+    },
+    "de": {
+        "chars": set("äöüß"),
+        "words": {"als", "das", "dem", "den", "der", "des", "die", "ein", "eine", "für", "mit", "und", "von", "zum"},
+    },
+    "es": {
+        "chars": set("áéíóúñü¿¡"),
+        "words": {"con", "de", "del", "el", "en", "español", "la", "las", "los", "no", "para", "por", "que", "sobre", "una"},
+    },
+    "fi": {
+        "chars": set("äö"),
+        "words": {"että", "ja", "kanssa", "on", "sekä", "suomi", "suomen"},
+    },
+    "fr": {
+        "chars": set("àâæçéèêëîïôœùûü"),
+        "words": {"avec", "aux", "dans", "de", "des", "du", "en", "et", "français", "la", "langue", "le", "les", "par", "pour", "sur", "une"},
+    },
+    "hu": {
+        "chars": set("áéíóöőúüű"),
+        "words": {"az", "egy", "és", "hogy", "magyar", "nem", "van"},
+    },
+    "it": {
+        "chars": set("àèéìòù"),
+        "words": {"che", "con", "dei", "del", "della", "di", "gli", "il", "italiano", "la", "le", "per", "una"},
+    },
+    "nl": {
+        "chars": set("áéíóúëï"),
+        "words": {"de", "een", "en", "het", "met", "nederlands", "op", "voor", "van"},
+    },
+    "no": {
+        "chars": set("æøå"),
+        "words": {"det", "en", "for", "med", "norsk", "og", "på", "til"},
+    },
+    "pl": {
+        "chars": set("ąćęłńóśźż"),
+        "words": {"dla", "jest", "na", "polski", "się", "oraz", "w", "z"},
+    },
+    "pt": {
+        "chars": set("áâãàçéêíóôõúü"),
+        "words": {"com", "da", "das", "de", "do", "dos", "em", "não", "o", "os", "para", "português", "que", "uma"},
+    },
+    "ro": {
+        "chars": set("ăâîșşțţ"),
+        "words": {"cu", "de", "în", "la", "pentru", "română", "și", "sau"},
+    },
+    "sk": {
+        "chars": set("áäčďéíĺľňóôŕšťúýž"),
+        "words": {"je", "na", "pre", "sa", "slovensky", "v"},
+    },
+    "sv": {
+        "chars": set("åäö"),
+        "words": {"att", "den", "det", "för", "med", "och", "på", "svenska"},
+    },
+    "tr": {
+        "chars": set("çğıİöşü"),
+        "words": {"bir", "için", "ile", "türkçe", "ve"},
+    },
+    "vi": {
+        "chars": set("ăâđêôơưáàảãạấầẩẫậắằẳẵặéèẻẽẹếềểễệíìỉĩịóòỏõọốồổỗộớờởỡợúùủũụứừửữựýỳỷỹỵ"),
+        "words": {"của", "cho", "tiếng", "trong", "và", "với"},
+    },
+}
+
+ENGLISH_TITLE_WORDS = {
+    "accessibility",
+    "accessible",
+    "add",
+    "and",
+    "android",
+    "app",
+    "also",
+    "audio",
+    "audiobooks",
+    "available",
+    "best",
+    "braille",
+    "break",
+    "coffee",
+    "dictionary",
+    "duolingo",
+    "easy",
+    "ebooks",
+    "education",
+    "english",
+    "for",
+    "free",
+    "french",
+    "from",
+    "german",
+    "grammar",
+    "guide",
+    "in",
+    "italian",
+    "language",
+    "languages",
+    "learn",
+    "learning",
+    "monolingual",
+    "on",
+    "podcast",
+    "podcasts",
+    "reader",
+    "screen",
+    "spanish",
+    "speakers",
+    "store",
+    "the",
+    "to",
+    "with",
+    "youtube",
+}
+
+SCRIPT_LANGUAGE_RANGES = (
+    ("Greek", "el", {"el"}, ((0x0370, 0x03FF), (0x1F00, 0x1FFF))),
+    ("Cyrillic", "ru", {"be", "bg", "kk", "ky", "mk", "mn", "ru", "sr", "tg", "uk", "uz"}, ((0x0400, 0x052F),)),
+    ("Arabic", "ar", {"ar", "fa", "ps", "ur"}, ((0x0600, 0x06FF), (0x0750, 0x077F), (0x08A0, 0x08FF))),
+    ("Hebrew", "he", {"he"}, ((0x0590, 0x05FF),)),
+    ("Devanagari", "hi", {"hi", "mr", "ne", "sa"}, ((0x0900, 0x097F),)),
+    ("Bengali", "bn", {"bn"}, ((0x0980, 0x09FF),)),
+    ("Gurmukhi", "pa", {"pa"}, ((0x0A00, 0x0A7F),)),
+    ("Gujarati", "gu", {"gu"}, ((0x0A80, 0x0AFF),)),
+    ("Tamil", "ta", {"ta"}, ((0x0B80, 0x0BFF),)),
+    ("Telugu", "te", {"te"}, ((0x0C00, 0x0C7F),)),
+    ("Kannada", "kn", {"kn"}, ((0x0C80, 0x0CFF),)),
+    ("Malayalam", "ml", {"ml"}, ((0x0D00, 0x0D7F),)),
+    ("Thai", "th", {"th"}, ((0x0E00, 0x0E7F),)),
+    ("Lao", "lo", {"lo"}, ((0x0E80, 0x0EFF),)),
+    ("Georgian", "ka", {"ka"}, ((0x10A0, 0x10FF),)),
+    ("Hangul", "ko", {"ko"}, ((0x1100, 0x11FF), (0x3130, 0x318F), (0xAC00, 0xD7AF))),
+    ("Ethiopic", "am", {"am"}, ((0x1200, 0x137F),)),
+    ("Khmer", "km", {"km"}, ((0x1780, 0x17FF),)),
+    ("Myanmar", "my", {"my"}, ((0x1000, 0x109F),)),
+    ("Armenian", "hy", {"hy"}, ((0x0530, 0x058F),)),
+)
+
+HAN_RANGES = ((0x3400, 0x4DBF), (0x4E00, 0x9FFF), (0xF900, 0xFAFF))
+KANA_RANGES = ((0x3040, 0x309F), (0x30A0, 0x30FF))
 
 
 def read_text(path: Path) -> str:
@@ -122,6 +512,185 @@ def clean_download_title(stem: str) -> str:
     if " " not in title and re.search(r"[a-z][A-Z]", title):
         title = re.sub(r"(?<=[a-z])(?=[A-Z])", " ", title)
     return title
+
+
+def normalize_language_name(value: str) -> str:
+    value = unicodedata.normalize("NFKD", value.casefold())
+    value = "".join(char for char in value if not unicodedata.combining(char))
+    value = re.sub(r"[^a-z]+", " ", value).strip()
+    return value
+
+
+def normalize_language_code(value: str) -> str:
+    value = value.strip().replace("_", "-").casefold()
+    match = re.match(r"([a-z]{2,3})(?:-[a-z0-9]+)?$", value)
+    if not match:
+        return ""
+    code = match.group(1)
+    return "" if code == "en" else code
+
+
+def language_code_from_context(source_rel: Path | None) -> str:
+    if source_rel is None:
+        return ""
+    for part in reversed(source_rel.parent.parts):
+        code = LANGUAGE_NAME_TO_CODE.get(normalize_language_name(part), "")
+        if code and code != "en":
+            return code
+    return ""
+
+
+def language_code_from_url(href: str) -> str:
+    if not href or not re.match(r"^[a-z][a-z0-9+.-]*:", href, flags=re.IGNORECASE):
+        return ""
+
+    try:
+        parsed = urlparse(href)
+    except ValueError:
+        return ""
+
+    query = parse_qs(parsed.query)
+    for param in URL_LANGUAGE_PARAMS:
+        for value in query.get(param, []):
+            code = normalize_language_code(value)
+            if code:
+                return code
+
+    for segment in parsed.path.split("/"):
+        code = normalize_language_code(segment)
+        if code:
+            return code
+
+    host = parsed.hostname or ""
+    tld = host.rsplit(".", 1)[-1].casefold() if "." in host else ""
+    return LANGUAGE_TLD_TO_CODE.get(tld, "")
+
+
+def codepoint_in_ranges(codepoint: int, ranges: tuple[tuple[int, int], ...]) -> bool:
+    return any(start <= codepoint <= end for start, end in ranges)
+
+
+def language_code_from_script(title: str, context_code: str) -> str:
+    letter_count = sum(1 for char in title if char.isalpha())
+    if letter_count == 0:
+        return ""
+
+    kana_count = sum(1 for char in title if codepoint_in_ranges(ord(char), KANA_RANGES))
+    if kana_count:
+        return "ja"
+
+    han_count = sum(1 for char in title if codepoint_in_ranges(ord(char), HAN_RANGES))
+    if han_count >= max(1, letter_count // 4):
+        return context_code if context_code in {"ja", "ko", "zh"} else "zh"
+
+    for _, default_code, context_codes, ranges in SCRIPT_LANGUAGE_RANGES:
+        script_count = sum(1 for char in title if codepoint_in_ranges(ord(char), ranges))
+        if script_count >= max(1, letter_count // 4):
+            return context_code if context_code in context_codes else default_code
+    return ""
+
+
+def title_words(title: str) -> list[str]:
+    return re.findall(r"[^\W\d_]+(?:['’][^\W\d_]+)?", title.casefold(), flags=re.UNICODE)
+
+
+def title_has_latin_non_ascii(title: str) -> bool:
+    for char in title:
+        if not char.isalpha() or ord(char) < 128:
+            continue
+        if "LATIN" in unicodedata.name(char, ""):
+            return True
+    return False
+
+
+def language_code_from_latin_clues(title: str, context_code: str, url_code: str) -> str:
+    tokens = title_words(title)
+    if not tokens:
+        return ""
+
+    title_lower = title.casefold()
+    scores: dict[str, float] = defaultdict(float)
+    for code, clues in LATIN_LANGUAGE_CLUES.items():
+        scores[code] += sum(3 for char in set(title_lower) if char in clues["chars"])
+        scores[code] += sum(2 for token in tokens if token in clues["words"])
+
+    if context_code in scores and scores[context_code] > 0:
+        scores[context_code] += 1.5
+    if url_code in scores and scores[url_code] > 0:
+        scores[url_code] += 1
+
+    english_score = sum(1 for token in tokens if token in ENGLISH_TITLE_WORDS)
+    ranked = sorted(scores.items(), key=lambda item: item[1], reverse=True)
+    best_code, best_score = ranked[0] if ranked else ("", 0)
+    second_score = ranked[1][1] if len(ranked) > 1 else 0
+
+    if best_score >= 4 and (best_score - second_score >= 2 or best_code in {context_code, url_code}):
+        if best_code not in {context_code, url_code} and not title_has_latin_non_ascii(title) and best_score < 6:
+            return ""
+        if english_score >= best_score and best_code not in {context_code, url_code}:
+            return ""
+        return best_code
+
+    if context_code and scores.get(context_code, 0) >= 2:
+        if english_score >= scores[context_code] + 1:
+            return ""
+        return context_code
+
+    if url_code and scores.get(url_code, 0) >= 3:
+        if english_score >= scores[url_code] + 1:
+            return ""
+        return url_code
+
+    if context_code and context_code == url_code and len(tokens) >= 2 and english_score == 0:
+        return context_code
+
+    if context_code and title_has_latin_non_ascii(title) and english_score == 0:
+        return context_code
+
+    return ""
+
+
+def inferred_title_language(title: str, source_rel: Path | None = None, href: str = "") -> str:
+    context_code = language_code_from_context(source_rel)
+    script_code = language_code_from_script(title, context_code)
+    if script_code:
+        return script_code
+
+    url_code = language_code_from_url(href)
+    return language_code_from_latin_clues(title, context_code, url_code)
+
+
+def title_language_segments(title: str, source_rel: Path | None = None, href: str = "") -> tuple[tuple[str, str], ...]:
+    segments = LANGUAGE_TITLE_SEGMENTS.get(title, ())
+    if segments:
+        return segments
+
+    language_code = inferred_title_language(title, source_rel, href)
+    if not language_code:
+        return ()
+    return ((language_code, title),)
+
+
+def render_title_text(title: str, source_rel: Path | None = None, href: str = "") -> tuple[str, str]:
+    segments = title_language_segments(title, source_rel, href)
+    if not segments:
+        return html.escape(title), ""
+
+    if len(segments) == 1 and segments[0][0]:
+        lang, text = segments[0]
+        return html.escape(text), f' lang="{html.escape(lang, quote=True)}"'
+
+    markup = "".join(
+        f'<span lang="{html.escape(lang, quote=True)}">{html.escape(text)}</span>'
+        if lang
+        else html.escape(text)
+        for lang, text in segments
+    )
+    return markup, ""
+
+
+def search_title_segments(title: str, source_rel: Path | None = None, href: str = "") -> list[dict[str, str]]:
+    return [{"lang": lang, "text": text} for lang, text in title_language_segments(title, source_rel, href)]
 
 
 def clean_category(value: str) -> str:
@@ -337,11 +906,12 @@ def render_resource(resource: Resource, from_page: Path, show_subcategory: bool 
     href = relative_href(from_page, Path(resource.href)) if resource.downloadable else resource.href
     download_attr = f' download="{html.escape(resource.download_name, quote=True)}"' if resource.downloadable else ""
     link_attrs = "" if resource.downloadable else ' target="_blank" rel="noopener noreferrer"'
+    title_markup, title_lang_attr = render_title_text(resource.title, resource.source_rel, resource.href)
     meta_line = f'\n  <span class="resource-meta">{meta}</span>' if meta else ""
     return "\n".join(
         (
             f'<li class="resource-item" data-resource data-search="{html.escape(resource.search_text, quote=True)}">',
-            f'  <a href="{html.escape(href, quote=True)}"{download_attr}{link_attrs}>{html.escape(resource.title)}</a>{meta_line}',
+            f'  <a href="{html.escape(href, quote=True)}"{download_attr}{link_attrs}{title_lang_attr}>{title_markup}</a>{meta_line}',
             "</li>",
         )
     )
@@ -1069,21 +1639,23 @@ def search_data_for(resources: list[Resource], pages: list[CategoryPage], notes:
             if resource.size_label:
                 file_parts.append(resource.size_label)
             file_info = " - ".join(file_parts)
-        data.append(
-            {
-                "id": f"resource-{item_id}",
-                "resultType": "resource",
-                "sortGroup": 3,
-                "title": resource.title,
-                "href": resource.href,
-                "downloadable": resource.downloadable,
-                "downloadName": resource.download_name if resource.downloadable else "",
-                "category": category_path_label(resource),
-                "fileInfo": file_info,
-                "searchText": resource.search_text,
-                "scopes": ancestor_scopes(folder),
-            }
-        )
+        item = {
+            "id": f"resource-{item_id}",
+            "resultType": "resource",
+            "sortGroup": 3,
+            "title": resource.title,
+            "href": resource.href,
+            "downloadable": resource.downloadable,
+            "downloadName": resource.download_name if resource.downloadable else "",
+            "category": category_path_label(resource),
+            "fileInfo": file_info,
+            "searchText": resource.search_text,
+            "scopes": ancestor_scopes(folder),
+        }
+        title_segments = search_title_segments(resource.title, resource.source_rel, resource.href)
+        if title_segments:
+            item["titleSegments"] = title_segments
+        data.append(item)
         item_id += 1
     return data
 
@@ -2353,6 +2925,38 @@ SITE_JS = r"""(() => {
     }
   }
 
+  function appendTitleText(target, item) {
+    const segments = Array.isArray(item.titleSegments) ? item.titleSegments : [];
+    if (segments.length === 0) {
+      target.textContent = item.title;
+      return;
+    }
+
+    const onlySegment = segments.length === 1 ? segments[0] : null;
+    if (
+      onlySegment &&
+      typeof onlySegment.lang === "string" &&
+      onlySegment.lang &&
+      typeof onlySegment.text === "string"
+    ) {
+      target.lang = onlySegment.lang;
+      target.textContent = onlySegment.text;
+      return;
+    }
+
+    segments.forEach((segment) => {
+      if (!segment || typeof segment.text !== "string" || segment.text.length === 0) return;
+      if (typeof segment.lang === "string" && segment.lang) {
+        const span = document.createElement("span");
+        span.lang = segment.lang;
+        span.textContent = segment.text;
+        target.append(span);
+      } else {
+        target.append(document.createTextNode(segment.text));
+      }
+    });
+  }
+
   function resultItem(item) {
     const listItem = document.createElement("li");
     listItem.className = "resource-item";
@@ -2365,7 +2969,7 @@ SITE_JS = r"""(() => {
       link.target = "_blank";
       link.rel = "noopener noreferrer";
     }
-    link.textContent = item.title;
+    appendTitleText(link, item);
     listItem.append(link);
 
     if (item.fileInfo) {
