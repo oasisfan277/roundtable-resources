@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import configparser
+import hashlib
 import html
 import json
 import os
@@ -36,6 +37,7 @@ PUBLISH_PATHS = (
     "downloads",
     "tools/build_site.py",
 )
+ASSET_VERSIONS: dict[str, str] = {}
 
 
 @dataclass(frozen=True)
@@ -754,6 +756,16 @@ def relative_href(from_page: Path, to_path: Path) -> str:
     return quote(rel, safe="/")
 
 
+def content_version(content: str) -> str:
+    return hashlib.sha256(content.encode("utf-8")).hexdigest()[:12]
+
+
+def asset_href(from_page: Path, to_path: Path) -> str:
+    href = relative_href(from_page, to_path)
+    version = ASSET_VERSIONS.get(to_path.name)
+    return f"{href}?v={version}" if version else href
+
+
 def site_root_href(from_page: Path) -> str:
     start = (SITE_DIR / from_page).parent
     rel = os.path.relpath(SITE_DIR, start=start).replace(os.sep, "/")
@@ -967,9 +979,9 @@ def render_page_shell(
     extra_skip_links: list[tuple[str, str]] | None = None,
     header_extra: str = "",
 ) -> str:
-    asset_styles = relative_href(from_page, Path("assets/styles.css"))
-    asset_data = relative_href(from_page, Path("assets/search-data.js"))
-    asset_script = relative_href(from_page, Path("assets/site.js"))
+    asset_styles = asset_href(from_page, Path("assets/styles.css"))
+    asset_data = asset_href(from_page, Path("assets/search-data.js"))
+    asset_script = asset_href(from_page, Path("assets/site.js"))
     asset_icon = relative_href(from_page, Path("assets/favicon.svg"))
     asset_mark = relative_href(from_page, Path("assets/site-mark.svg"))
     root_href = site_root_href(from_page)
@@ -1670,8 +1682,16 @@ def search_data_for(resources: list[Resource], pages: list[CategoryPage], notes:
 def write_static_assets(resources: list[Resource], pages: list[CategoryPage], notes: list[PageNote]) -> None:
     ASSETS_DIR.mkdir(parents=True, exist_ok=True)
     search_json = json.dumps(search_data_for(resources, pages, notes), ensure_ascii=False, separators=(",", ":"))
+    search_script = f"window.ROUND_TABLE_RESOURCES = {search_json};\n"
+    ASSET_VERSIONS.update(
+        {
+            "search-data.js": content_version(search_script),
+            "styles.css": content_version(STYLES_CSS),
+            "site.js": content_version(SITE_JS),
+        }
+    )
     (ASSETS_DIR / "search-data.js").write_text(
-        f"window.ROUND_TABLE_RESOURCES = {search_json};\n",
+        search_script,
         encoding="utf-8",
     )
     (ASSETS_DIR / "styles.css").write_text(STYLES_CSS, encoding="utf-8")
