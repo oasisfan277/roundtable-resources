@@ -116,6 +116,7 @@ LANGUAGE_TITLE_SEGMENTS: dict[str, tuple[tuple[str, str], ...]] = {
         ("de", "Die Übersetzerin Sonja Finck als Wortakrobatin"),
     ),
     "DBSV, YouTube": (("de", "DBSV, YouTube"),),
+    "DBSV auf YouTube": (("de", "DBSV auf YouTube"),),
     "Documentos RNE": (("es", "Documentos RNE"),),
     "El Faro": (("es", "El Faro"),),
     "entrevue sur les nouvelles technologies et la déficience visuelle": (
