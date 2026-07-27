@@ -1226,10 +1226,14 @@ def render_breadcrumbs(page: CategoryPage, pages_by_dir: dict[Path, CategoryPage
         if parent_page:
             crumbs.append(f'<a href="{relative_href(page.page_rel, parent_page.page_rel)}" target="_blank" rel="noopener noreferrer">{html.escape(parent_page.title)}</a>')
     crumbs.append(f'<span aria-current="page">{html.escape(page.title)}</span>')
+    crumb_items = []
+    for index, crumb in enumerate(crumbs):
+        separator = ' <span class="breadcrumb-separator" aria-hidden="true">/</span>' if index < len(crumbs) - 1 else ""
+        crumb_items.append(f"<li>{crumb}{separator}</li>")
     return f"""
     <nav class="breadcrumbs" aria-label="Breadcrumb">
       <ol>
-        {"".join(f"<li>{crumb}</li>" for crumb in crumbs)}
+        {"".join(crumb_items)}
       </ol>
     </nav>
 """
@@ -2271,8 +2275,7 @@ button:hover {
   padding: 0;
 }
 
-.breadcrumbs li:not(:last-child)::after {
-  content: "/";
+.breadcrumb-separator {
   color: var(--muted);
   margin-left: 0.35rem;
 }

@@ -568,8 +568,7 @@ button:hover {
   padding: 0;
 }
 
-.breadcrumbs li:not(:last-child)::after {
-  content: "/";
+.breadcrumb-separator {
   color: var(--muted);
   margin-left: 0.35rem;
 }
