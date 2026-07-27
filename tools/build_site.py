@@ -78,6 +78,10 @@ TYPE_LABELS = {
 EXCLUDED_SOURCE_EXTENSIONS = {".mbox"}
 NOTE_URL_RE = re.compile(r"https?://[^\s<]+")
 TRAILING_URL_PUNCTUATION = ".,;:!?)\"]}"
+RESOURCE_TITLE_REPLACEMENTS = {
+    "eole, audiobooks for French speakers": "Éole, audiobooks for French speakers",
+    "eole, livres d'audio": "Éole, livres d'audio",
+}
 LANGUAGE_TITLE_SEGMENTS: dict[str, tuple[tuple[str, str], ...]] = {
     "2 Heures de Perdues": (("fr", "2 Heures de Perdues"),),
     "21 JOURS DANS LA PEAU D'UN AVEUGLE": (("fr", "21 JOURS DANS LA PEAU D'UN AVEUGLE"),),
@@ -117,6 +121,8 @@ LANGUAGE_TITLE_SEGMENTS: dict[str, tuple[tuple[str, str], ...]] = {
     "entrevue sur les nouvelles technologies et la déficience visuelle": (
         ("fr", "entrevue sur les nouvelles technologies et la déficience visuelle"),
     ),
+    "Éole, audiobooks for French speakers": (("fr", "Éole, audiobooks for French speakers"),),
+    "Éole, livres d'audio": (("fr", "Éole, livres d'audio"),),
     "Español con Juan": (("es", "Español con Juan"),),
     "Estirando el chicle": (("es", "Estirando el chicle"),),
     "FloodCast": (("fr", "FloodCast"),),
@@ -504,7 +510,7 @@ def clean_title(stem: str) -> str:
     for suffix in (" - Google Chrome", " - Brave"):
         if title.endswith(suffix):
             title = title[: -len(suffix)].strip()
-    return title
+    return RESOURCE_TITLE_REPLACEMENTS.get(title, title)
 
 
 def clean_download_title(stem: str) -> str:
