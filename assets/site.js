@@ -171,6 +171,33 @@
     } catch (error) {}
   }
 
+  function pageFromUrl(pageParam) {
+    if (!pageParam) return 1;
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const page = Number.parseInt(params.get(pageParam) || "", 10);
+      return Number.isFinite(page) && page > 0 ? page : 1;
+    } catch (error) {
+      return 1;
+    }
+  }
+
+  function syncPageToUrl(pageParam, currentPage) {
+    if (!pageParam || !window.history || typeof window.history.replaceState !== "function") return;
+    try {
+      const url = new URL(window.location.href);
+      const pageValue = currentPage > 1 ? String(currentPage) : "";
+      if (pageValue) {
+        if (url.searchParams.get(pageParam) === pageValue) return;
+        url.searchParams.set(pageParam, pageValue);
+      } else {
+        if (!url.searchParams.has(pageParam)) return;
+        url.searchParams.delete(pageParam);
+      }
+      window.history.replaceState(null, "", url.href);
+    } catch (error) {}
+  }
+
   function createPaginationControls({ label, pageSizeLabel, itemNamePlural, onPrevious, onNext, onPageSizeChange }) {
     paginationControlId += 1;
     const selectId = `pagination-size-${paginationControlId}`;
@@ -234,8 +261,9 @@
     itemNamePlural,
     total,
     renderRange,
+    pageParam = "",
   }) {
-    let currentPage = 1;
+    let currentPage = pageFromUrl(pageParam);
     let pageSize = savedPageSize();
     const controls = containers
       .filter(Boolean)
@@ -288,6 +316,7 @@
       const totalCount = total();
       const pageCount = Math.max(1, Math.ceil(totalCount / pageSize));
       currentPage = Math.min(Math.max(currentPage, 1), pageCount);
+      syncPageToUrl(pageParam, currentPage);
       const start = totalCount === 0 ? 0 : (currentPage - 1) * pageSize;
       const end = Math.min(start + pageSize, totalCount);
       renderRange(start, end, totalCount, currentPage, pageCount, pageSize);
@@ -302,8 +331,8 @@
 
     return {
       render,
-      reset() {
-        currentPage = 1;
+      reset({ restorePage = false } = {}) {
+        currentPage = restorePage ? pageFromUrl(pageParam) : 1;
         render();
       },
       hide,
@@ -326,6 +355,7 @@
         pageSizeLabel: "Resources per page",
         itemName: "resource",
         itemNamePlural: "resources",
+        pageParam: "page",
         total: () => items.length,
         renderRange: (start, end) => {
           items.forEach((item, index) => {
@@ -370,6 +400,7 @@
       pageSizeLabel: "Results per page",
       itemName: "result",
       itemNamePlural: "results",
+      pageParam: "page",
       total: () => searchMatches.length,
       renderRange: (start, end, totalCount) => {
         resultsList.replaceChildren(...searchMatches.slice(start, end).map(resultItem));
@@ -529,7 +560,7 @@
       });
 
     if (searchPager) {
-      searchPager.reset();
+      searchPager.reset({ restorePage: true });
     }
     if (window.location.hash === "#search-results-heading" && resultsHeading) {
       resultsHeading.focus();
