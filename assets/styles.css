@@ -216,6 +216,15 @@ main,
   font-weight: 700;
 }
 
+.site-home-nav {
+  margin: 0 0 0.6rem;
+}
+
+.site-home-nav a {
+  display: inline-block;
+  font-weight: 700;
+}
+
 h1,
 h2,
 h3,

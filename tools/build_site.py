@@ -984,6 +984,7 @@ def render_page_shell(
     asset_script = asset_href(from_page, Path("assets/site.js"))
     asset_icon = relative_href(from_page, Path("assets/favicon.svg"))
     asset_mark = relative_href(from_page, Path("assets/site-mark.svg"))
+    home_href = relative_href(from_page, Path("index.html"))
     root_href = site_root_href(from_page)
     intro = f'\n        <p class="intro">{html.escape(description)}</p>' if description else ""
     intro = f"{intro}{header_extra}"
@@ -1066,6 +1067,9 @@ def render_page_shell(
       <img class="site-mark" src="{asset_mark}" alt="" aria-hidden="true" width="64" height="64">
       <div>
         <p class="eyebrow">The RoundTable</p>
+        <nav class="site-home-nav" aria-label="Homepage">
+          <a href="{home_href}">Home page</a>
+        </nav>
         <h1 id="page-title" tabindex="-1">{html.escape(title)}</h1>{intro}
       </div>
     </div>
@@ -1920,6 +1924,15 @@ main,
 .eyebrow {
   margin: 0 0 0.25rem;
   color: var(--plum);
+  font-weight: 700;
+}
+
+.site-home-nav {
+  margin: 0 0 0.6rem;
+}
+
+.site-home-nav a {
+  display: inline-block;
   font-weight: 700;
 }
 
