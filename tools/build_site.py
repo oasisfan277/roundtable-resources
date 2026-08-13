@@ -3216,9 +3216,49 @@ def ensure_publish_ready(remote: str, branch: str) -> None:
         )
 
 
+def iter_publish_files():
+    for publish_path in PUBLISH_PATHS:
+        path = SITE_DIR / publish_path
+        if path.is_file():
+            yield path
+        elif path.is_dir():
+            for child in path.rglob("*"):
+                if child.is_file():
+                    yield child
+
+
+def ensure_publish_files_readable() -> None:
+    unreadable: list[str] = []
+    for path in iter_publish_files():
+        try:
+            with path.open("rb") as handle:
+                handle.read(1)
+        except OSError as error:
+            rel = path.relative_to(SITE_DIR).as_posix()
+            unreadable.append(f"{rel}: {error}")
+
+    if unreadable:
+        details = "\n".join(unreadable[:10])
+        if len(unreadable) > 10:
+            details += f"\n...and {len(unreadable) - 10} more."
+        raise RuntimeError(f"Could not read every generated publish file:\n{details}")
+
+
+def stage_publish_paths() -> None:
+    try:
+        run_git(["add", "-A", "--", *PUBLISH_PATHS])
+    except RuntimeError as error:
+        message = str(error).casefold()
+        if not any(marker in message for marker in ("permission denied", "unable to index", "could not open")):
+            raise
+        print("Git could not read a generated file, so checking the publish files and retrying...", flush=True)
+        ensure_publish_files_readable()
+        run_git(["add", "-A", "--", *PUBLISH_PATHS])
+
+
 def publish_site(remote: str, branch: str, message: str) -> None:
     ensure_publish_ready(remote, branch)
-    run_git(["add", "-A", "--", *PUBLISH_PATHS])
+    stage_publish_paths()
 
     staged_changes = run_git(["diff", "--cached", "--name-only"]).splitlines()
     if staged_changes:
