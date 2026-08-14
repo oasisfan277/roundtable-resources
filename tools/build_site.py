@@ -2589,6 +2589,9 @@ SITE_JS = r"""(() => {
   const resources = Array.isArray(window.ROUND_TABLE_RESOURCES) ? window.ROUND_TABLE_RESOURCES : [];
   const pageSizeOptions = [25, 50, 75, 100];
   const pageSizeStorageKey = "roundtable-resources-page-size";
+  const announceNavigationStorageKey = "roundtable-announce-navigation";
+  const linkNavigationStorageKey = "roundtable-link-navigation";
+  const lastPageStorageKey = "roundtable-last-page-url";
   let paginationControlId = 0;
   let pageFocusTimers = [];
 
@@ -2711,6 +2714,16 @@ SITE_JS = r"""(() => {
     return text || "this page";
   }
 
+  function pageHrefWithoutHash(href) {
+    try {
+      const url = new URL(href, window.location.href);
+      url.hash = "";
+      return url.href;
+    } catch (error) {
+      return "";
+    }
+  }
+
   function focusPageStart() {
     const main = document.getElementById("main");
     if (main && typeof main.focus === "function") {
@@ -2761,19 +2774,60 @@ SITE_JS = r"""(() => {
 
   function requestNavigationAnnouncement() {
     try {
-      sessionStorage.setItem("roundtable-announce-navigation", "1");
+      sessionStorage.setItem(announceNavigationStorageKey, "1");
     } catch (error) {}
   }
 
   function shouldAnnounceNavigation(event) {
-    if (isBackForwardNavigation(event)) return true;
+    const backForwardNavigation = isBackForwardNavigation(event);
+    let requestedNavigation = false;
+    let linkNavigation = false;
+    let sameSitePageChange = false;
     try {
-      if (sessionStorage.getItem("roundtable-announce-navigation") === "1") {
-        sessionStorage.removeItem("roundtable-announce-navigation");
-        return true;
+      requestedNavigation = sessionStorage.getItem(announceNavigationStorageKey) === "1";
+      linkNavigation = sessionStorage.getItem(linkNavigationStorageKey) === "1";
+      sessionStorage.removeItem(announceNavigationStorageKey);
+      sessionStorage.removeItem(linkNavigationStorageKey);
+
+      const currentPage = pageHrefWithoutHash(window.location.href);
+      const previousPage = sessionStorage.getItem(lastPageStorageKey) || "";
+      if (currentPage) {
+        sessionStorage.setItem(lastPageStorageKey, currentPage);
+      }
+      sameSitePageChange = Boolean(previousPage && currentPage && previousPage !== currentPage);
+    } catch (error) {}
+    return backForwardNavigation || requestedNavigation || (sameSitePageChange && !linkNavigation);
+  }
+
+  function navigationAnnouncementText(status) {
+    const label = pageLabel();
+    const defaultText = `Now on ${label}.`;
+    const alternateText = `You are on ${label}.`;
+    return status && status.textContent === defaultText ? alternateText : defaultText;
+  }
+
+  function markInternalLinkNavigation(event) {
+    if (
+      event.defaultPrevented ||
+      event.button !== 0 ||
+      event.altKey ||
+      event.ctrlKey ||
+      event.metaKey ||
+      event.shiftKey
+    ) {
+      return;
+    }
+    const target = event.target && typeof event.target.closest === "function" ? event.target.closest("a[href]") : null;
+    if (!target || (target.target && target.target !== "_self")) return;
+    try {
+      const targetUrl = new URL(target.getAttribute("href"), window.location.href);
+      if (
+        targetUrl.origin === window.location.origin &&
+        pageHrefWithoutHash(targetUrl.href) !== pageHrefWithoutHash(window.location.href)
+      ) {
+        sessionStorage.setItem(linkNavigationStorageKey, "1");
       }
     } catch (error) {}
-    return false;
   }
 
   function announceHistoryNavigation(event) {
@@ -2782,12 +2836,13 @@ SITE_JS = r"""(() => {
     settlePageFocus();
     window.setTimeout(() => {
       if (status) {
-        status.textContent = `Now on ${pageLabel()}.`;
+        status.textContent = navigationAnnouncementText(status);
       }
-    }, 200);
+    }, 1600);
   }
 
   window.addEventListener("pageshow", announceHistoryNavigation);
+  document.addEventListener("click", markInternalLinkNavigation, true);
 
   document.addEventListener("keydown", (event) => {
     const isBackShortcut = isLeftArrowKey(event);
