@@ -2592,6 +2592,7 @@ SITE_JS = r"""(() => {
   const announceNavigationStorageKey = "roundtable-announce-navigation";
   const linkNavigationStorageKey = "roundtable-link-navigation";
   const lastPageStorageKey = "roundtable-last-page-url";
+  const lastAnnouncementStoragePrefix = "roundtable-last-navigation-announcement:";
   let paginationControlId = 0;
   let pageFocusTimers = [];
 
@@ -2803,7 +2804,15 @@ SITE_JS = r"""(() => {
     const label = pageLabel();
     const defaultText = `Now on ${label}.`;
     const alternateText = `You are on ${label}.`;
-    return status && status.textContent === defaultText ? alternateText : defaultText;
+    try {
+      const pageKey = lastAnnouncementStoragePrefix + pageHrefWithoutHash(window.location.href);
+      const lastText = sessionStorage.getItem(pageKey) || "";
+      const nextText = lastText === defaultText ? alternateText : defaultText;
+      sessionStorage.setItem(pageKey, nextText);
+      return nextText;
+    } catch (error) {
+      return status && status.textContent === defaultText ? alternateText : defaultText;
+    }
   }
 
   function markInternalLinkNavigation(event) {
