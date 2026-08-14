@@ -2596,6 +2596,12 @@ SITE_JS = r"""(() => {
   let paginationControlId = 0;
   let pageFocusTimers = [];
 
+  try {
+    if ("scrollRestoration" in window.history) {
+      window.history.scrollRestoration = "manual";
+    }
+  } catch (error) {}
+
   function savedTheme() {
     try {
       return localStorage.getItem("roundtable-theme");
@@ -2726,15 +2732,24 @@ SITE_JS = r"""(() => {
   }
 
   function focusPageStart() {
-    const main = document.getElementById("main");
-    if (main && typeof main.focus === "function") {
-      main.focus();
-      return document.activeElement === main;
-    }
     const heading = document.getElementById("page-title");
-    if (!heading || typeof heading.focus !== "function") return false;
-    heading.focus();
-    return document.activeElement === heading;
+    if (heading && typeof heading.focus === "function") {
+      try {
+        heading.scrollIntoView({ block: "start", inline: "nearest" });
+      } catch (error) {
+        window.scrollTo(0, 0);
+      }
+      try {
+        heading.focus({ preventScroll: true });
+      } catch (error) {
+        heading.focus();
+      }
+      return document.activeElement === heading;
+    }
+    const main = document.getElementById("main");
+    if (!main || typeof main.focus !== "function") return false;
+    main.focus();
+    return document.activeElement === main;
   }
 
   function cancelPageFocusSettle() {
