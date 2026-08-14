@@ -139,8 +139,23 @@
 
   function focusPageTitle() {
     const heading = document.getElementById("page-title");
-    if (!heading || typeof heading.focus !== "function") return;
+    if (!heading || typeof heading.focus !== "function") return false;
     heading.focus();
+    return document.activeElement === heading;
+  }
+
+  function settlePageFocus() {
+    [0, 75, 200, 500].forEach((delay) => {
+      window.setTimeout(focusPageTitle, delay);
+    });
+  }
+
+  function isLeftArrowKey(event) {
+    return event.key === "ArrowLeft" || event.key === "Left" || event.code === "ArrowLeft";
+  }
+
+  function isRightArrowKey(event) {
+    return event.key === "ArrowRight" || event.key === "Right" || event.code === "ArrowRight";
   }
 
   function isBackForwardNavigation(event) {
@@ -174,19 +189,19 @@
     if (!shouldAnnounceNavigation(event)) return;
     const status = document.getElementById("navigation-status");
     if (status) status.textContent = "";
+    settlePageFocus();
     window.setTimeout(() => {
-      focusPageTitle();
       if (status) {
         status.textContent = `Now on ${pageLabel()}.`;
       }
-    }, 100);
+    }, 200);
   }
 
   window.addEventListener("pageshow", announceHistoryNavigation);
 
   document.addEventListener("keydown", (event) => {
-    const isBackShortcut = event.key === "ArrowLeft";
-    const isForwardShortcut = event.key === "ArrowRight" && event.altKey;
+    const isBackShortcut = isLeftArrowKey(event);
+    const isForwardShortcut = isRightArrowKey(event) && event.altKey;
     if (
       (!isBackShortcut && !isForwardShortcut) ||
       event.ctrlKey ||
@@ -220,7 +235,7 @@
       requestNavigationAnnouncement();
       window.history.back();
     }
-  });
+  }, true);
 
   focusLinks.forEach((focusLink) => {
     focusLink.addEventListener("click", () => {
