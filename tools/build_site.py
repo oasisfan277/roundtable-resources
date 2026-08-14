@@ -1078,7 +1078,7 @@ def render_page_shell(
     </div>
   </header>
 
-  <main id="main">
+  <main id="main" tabindex="-1" aria-labelledby="page-title">
     {content}
     <p class="back-to-top"><a href="#page-title">Back to top</a></p>
   </main>
@@ -2590,6 +2590,7 @@ SITE_JS = r"""(() => {
   const pageSizeOptions = [25, 50, 75, 100];
   const pageSizeStorageKey = "roundtable-resources-page-size";
   let paginationControlId = 0;
+  let pageFocusTimers = [];
 
   function savedTheme() {
     try {
@@ -2710,16 +2711,33 @@ SITE_JS = r"""(() => {
     return text || "this page";
   }
 
-  function focusPageTitle() {
+  function focusPageStart() {
+    const main = document.getElementById("main");
+    if (main && typeof main.focus === "function") {
+      main.focus();
+      return document.activeElement === main;
+    }
     const heading = document.getElementById("page-title");
     if (!heading || typeof heading.focus !== "function") return false;
     heading.focus();
     return document.activeElement === heading;
   }
 
+  function cancelPageFocusSettle() {
+    pageFocusTimers.forEach((timerId) => {
+      window.clearTimeout(timerId);
+    });
+    pageFocusTimers = [];
+  }
+
   function settlePageFocus() {
-    [0, 75, 200, 500].forEach((delay) => {
-      window.setTimeout(focusPageTitle, delay);
+    cancelPageFocusSettle();
+    [0, 100, 350, 800, 1400].forEach((delay) => {
+      const timerId = window.setTimeout(() => {
+        pageFocusTimers = pageFocusTimers.filter((id) => id !== timerId);
+        focusPageStart();
+      }, delay);
+      pageFocusTimers.push(timerId);
     });
   }
 
@@ -2761,7 +2779,6 @@ SITE_JS = r"""(() => {
   function announceHistoryNavigation(event) {
     if (!shouldAnnounceNavigation(event)) return;
     const status = document.getElementById("navigation-status");
-    if (status) status.textContent = "";
     settlePageFocus();
     window.setTimeout(() => {
       if (status) {
@@ -2775,6 +2792,9 @@ SITE_JS = r"""(() => {
   document.addEventListener("keydown", (event) => {
     const isBackShortcut = isLeftArrowKey(event);
     const isForwardShortcut = isRightArrowKey(event) && event.altKey;
+    if (event.key === "Tab") {
+      cancelPageFocusSettle();
+    }
     if (
       (!isBackShortcut && !isForwardShortcut) ||
       event.ctrlKey ||
@@ -2809,6 +2829,8 @@ SITE_JS = r"""(() => {
       window.history.back();
     }
   }, true);
+
+  window.addEventListener("pointerdown", cancelPageFocusSettle, true);
 
   focusLinks.forEach((focusLink) => {
     focusLink.addEventListener("click", () => {
