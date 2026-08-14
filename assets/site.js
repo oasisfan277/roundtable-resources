@@ -274,7 +274,7 @@
       if (status) {
         status.textContent = navigationAnnouncementText(status);
       }
-    }, 1600);
+    }, 350);
   }
 
   window.addEventListener("pageshow", announceHistoryNavigation);
