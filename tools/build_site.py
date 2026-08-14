@@ -1203,7 +1203,7 @@ def render_category_cards(pages: list[CategoryPage], from_page: Path) -> str:
             "\n".join(
                 (
                     '<li class="category-card">',
-                    f'  <a href="{href}" target="_blank" rel="noopener noreferrer">{html.escape(page.title)}</a>',
+                    f'  <a href="{href}">{html.escape(page.title)}</a>',
                     "</li>",
                 )
             )
@@ -1230,7 +1230,7 @@ def render_breadcrumbs(page: CategoryPage, pages_by_dir: dict[Path, CategoryPage
         current = current / part
         parent_page = pages_by_dir.get(current)
         if parent_page:
-            crumbs.append(f'<a href="{relative_href(page.page_rel, parent_page.page_rel)}" target="_blank" rel="noopener noreferrer">{html.escape(parent_page.title)}</a>')
+            crumbs.append(f'<a href="{relative_href(page.page_rel, parent_page.page_rel)}">{html.escape(parent_page.title)}</a>')
     crumbs.append(f'<span aria-current="page">{html.escape(page.title)}</span>')
     crumb_items = []
     for index, crumb in enumerate(crumbs):
