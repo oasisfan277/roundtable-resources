@@ -2750,14 +2750,23 @@ SITE_JS = r"""(() => {
   window.addEventListener("pageshow", announceHistoryNavigation);
 
   document.addEventListener("keydown", (event) => {
+    const isBackShortcut = event.key === "ArrowLeft";
+    const isForwardShortcut = event.key === "ArrowRight" && event.altKey;
     if (
-      event.key !== "ArrowLeft" ||
+      (!isBackShortcut && !isForwardShortcut) ||
       event.ctrlKey ||
       event.metaKey ||
       event.shiftKey ||
       event.repeat ||
       isTypingOrControl(event.target)
     ) {
+      return;
+    }
+
+    if (isForwardShortcut) {
+      event.preventDefault();
+      requestNavigationAnnouncement();
+      window.history.forward();
       return;
     }
 
