@@ -196,23 +196,13 @@ summary:focus-visible {
   border-radius: 6px;
 }
 
-.page-title-focus-target {
-  color: inherit;
-  text-decoration: none;
-}
-
-.page-title-focus-target:hover {
-  color: inherit;
-  text-decoration: underline;
-}
-
 .site-header {
   background: var(--surface);
   border-bottom: 1px solid var(--line);
 }
 
 .header-inner,
-main,
+.main-inner,
 .site-footer {
   width: min(1120px, calc(100% - 2rem));
   margin: 0 auto;
@@ -272,7 +262,7 @@ h1 {
   margin-top: 0.55rem;
 }
 
-main {
+.main-inner {
   padding: 1.5rem 0 2rem;
 }
 

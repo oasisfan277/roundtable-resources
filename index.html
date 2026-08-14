@@ -20,9 +20,9 @@
       } catch (error) {}
     })();
   </script>
-  <link rel="stylesheet" href="assets/styles.css?v=04e46c091e59">
+  <link rel="stylesheet" href="assets/styles.css?v=7c18ae4ca562">
   <script src="assets/search-data.js?v=57018a5fada3" defer></script>
-  <script src="assets/site.js?v=30577089f786" defer></script>
+  <script src="assets/site.js?v=15ef5492f2cc" defer></script>
 </head>
 <body data-site-root="./">
   <div id="navigation-status" class="visually-hidden" role="status" aria-live="polite" aria-atomic="true"></div>
@@ -65,23 +65,24 @@
       </fieldset>
     </div>
   </details>
-  <header class="site-header">
-    <div class="header-inner">
-      <img class="site-mark" src="assets/site-mark.svg" alt="" aria-hidden="true" width="64" height="64">
-      <div>
-        <p class="eyebrow">The RoundTable</p>
-        <nav class="site-home-nav" aria-label="Homepage">
-          <a href="index.html">Home page</a>
-        </nav>
-        <h1 id="page-title"><a id="page-start" class="page-title-focus-target" href="#main" tabindex="-1">The RoundTable Resources</a></h1>
+  <main id="main" tabindex="-1" aria-labelledby="page-title">
+    <header class="site-header">
+      <div class="header-inner">
+        <img class="site-mark" src="assets/site-mark.svg" alt="" aria-hidden="true" width="64" height="64">
+        <div>
+          <p class="eyebrow">The RoundTable</p>
+          <nav class="site-home-nav" aria-label="Homepage">
+            <a href="index.html">Home page</a>
+          </nav>
+          <h1 id="page-title" tabindex="-1">The RoundTable Resources</h1>
         <p class="intro">A searchable directory of links and downloads for language learning, translation, interpreting, accessibility, screen readers, braille, and related tools.</p>
         <p class="intro intro-note">Note that this site has been vibe coded with Codex. Some of the resources on this page are much more accessible with screen readers than others, but with the use of AI, things which previously weren&#x27;t useable can now be made pretty doable for a blind or visually-impaired language professional.</p>
+        </div>
       </div>
-    </div>
-  </header>
+    </header>
 
-  <main id="main" tabindex="-1" aria-labelledby="page-title">
-    
+    <div class="main-inner">
+      
     
     <section class="search-panel" aria-labelledby="search-heading">
       <h2 id="search-heading" tabindex="-1">Search Resources</h2>
@@ -364,7 +365,8 @@
     </section>
 
 
-    <p class="back-to-top"><a href="#page-title">Back to top</a></p>
+      <p class="back-to-top"><a href="#page-title">Back to top</a></p>
+    </div>
   </main>
 
 </body>

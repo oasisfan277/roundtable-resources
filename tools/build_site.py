@@ -1065,22 +1065,24 @@ def render_page_shell(
       </fieldset>
     </div>
   </details>
-  <header class="site-header">
-    <div class="header-inner">
-      <img class="site-mark" src="{asset_mark}" alt="" aria-hidden="true" width="64" height="64">
-      <div>
-        <p class="eyebrow">The RoundTable</p>
-        <nav class="site-home-nav" aria-label="Homepage">
-          <a href="{home_href}">Home page</a>
-        </nav>
-        <h1 id="page-title"><a id="page-start" class="page-title-focus-target" href="#main" tabindex="-1">{html.escape(title)}</a></h1>{intro}
-      </div>
-    </div>
-  </header>
-
   <main id="main" tabindex="-1" aria-labelledby="page-title">
-    {content}
-    <p class="back-to-top"><a href="#page-title">Back to top</a></p>
+    <header class="site-header">
+      <div class="header-inner">
+        <img class="site-mark" src="{asset_mark}" alt="" aria-hidden="true" width="64" height="64">
+        <div>
+          <p class="eyebrow">The RoundTable</p>
+          <nav class="site-home-nav" aria-label="Homepage">
+            <a href="{home_href}">Home page</a>
+          </nav>
+          <h1 id="page-title" tabindex="-1">{html.escape(title)}</h1>{intro}
+        </div>
+      </div>
+    </header>
+
+    <div class="main-inner">
+      {content}
+      <p class="back-to-top"><a href="#page-title">Back to top</a></p>
+    </div>
   </main>
 
 </body>
@@ -1923,23 +1925,13 @@ summary:focus-visible {
   border-radius: 6px;
 }
 
-.page-title-focus-target {
-  color: inherit;
-  text-decoration: none;
-}
-
-.page-title-focus-target:hover {
-  color: inherit;
-  text-decoration: underline;
-}
-
 .site-header {
   background: var(--surface);
   border-bottom: 1px solid var(--line);
 }
 
 .header-inner,
-main,
+.main-inner,
 .site-footer {
   width: min(1120px, calc(100% - 2rem));
   margin: 0 auto;
@@ -1999,7 +1991,7 @@ h1 {
   margin-top: 0.55rem;
 }
 
-main {
+.main-inner {
   padding: 1.5rem 0 2rem;
 }
 
@@ -2604,13 +2596,6 @@ SITE_JS = r"""(() => {
   const lastPageStorageKey = "roundtable-last-page-url";
   const lastAnnouncementStoragePrefix = "roundtable-last-navigation-announcement:";
   let paginationControlId = 0;
-  let pageFocusTimers = [];
-
-  try {
-    if ("scrollRestoration" in window.history) {
-      window.history.scrollRestoration = "manual";
-    }
-  } catch (error) {}
 
   function savedTheme() {
     try {
@@ -2741,45 +2726,10 @@ SITE_JS = r"""(() => {
     }
   }
 
-  function focusPageStart() {
-    const heading = document.getElementById("page-title");
-    const target = document.getElementById("page-start") || heading;
-    if (target && typeof target.focus === "function") {
-      try {
-        (heading || target).scrollIntoView({ block: "start", inline: "nearest" });
-      } catch (error) {
-        window.scrollTo(0, 0);
-      }
-      try {
-        target.focus({ preventScroll: true });
-      } catch (error) {
-        target.focus();
-      }
-      return document.activeElement === target;
-    }
-    const main = document.getElementById("main");
-    if (!main || typeof main.focus !== "function") return false;
-    main.focus();
-    return document.activeElement === main;
-  }
-
-  function cancelPageFocusSettle() {
-    pageFocusTimers.forEach((timerId) => {
-      window.clearTimeout(timerId);
-    });
-    pageFocusTimers = [];
-  }
-
-  function settlePageFocus() {
-    cancelPageFocusSettle();
-    focusPageStart();
-    [0, 50, 150, 350, 700].forEach((delay) => {
-      const timerId = window.setTimeout(() => {
-        pageFocusTimers = pageFocusTimers.filter((id) => id !== timerId);
-        window.requestAnimationFrame(focusPageStart);
-      }, delay);
-      pageFocusTimers.push(timerId);
-    });
+  function focusPageHeading() {
+    const heading = document.querySelector("#main #page-title[tabindex='-1']");
+    if (!heading || typeof heading.focus !== "function") return;
+    heading.focus();
   }
 
   function isLeftArrowKey(event) {
@@ -2869,7 +2819,7 @@ SITE_JS = r"""(() => {
   function announceHistoryNavigation(event) {
     const shouldAnnounce = shouldAnnounceNavigation(event);
     if (!shouldAnnounce) return;
-    settlePageFocus();
+    focusPageHeading();
     const status = document.getElementById("navigation-status");
     window.setTimeout(() => {
       if (status) {
@@ -2879,15 +2829,11 @@ SITE_JS = r"""(() => {
   }
 
   window.addEventListener("pageshow", announceHistoryNavigation);
-  window.addEventListener("pagehide", cancelPageFocusSettle);
   document.addEventListener("click", markInternalLinkNavigation, true);
 
   document.addEventListener("keydown", (event) => {
     const isBackShortcut = isLeftArrowKey(event);
     const isForwardShortcut = isRightArrowKey(event) && event.altKey;
-    if (!isBackShortcut && !isForwardShortcut) {
-      cancelPageFocusSettle();
-    }
     if (
       (!isBackShortcut && !isForwardShortcut) ||
       event.ctrlKey ||
@@ -2922,8 +2868,6 @@ SITE_JS = r"""(() => {
       window.history.back();
     }
   }, true);
-
-  window.addEventListener("pointerdown", cancelPageFocusSettle, true);
 
   focusLinks.forEach((focusLink) => {
     focusLink.addEventListener("click", () => {

@@ -21,13 +21,6 @@
   const lastPageStorageKey = "roundtable-last-page-url";
   const lastAnnouncementStoragePrefix = "roundtable-last-navigation-announcement:";
   let paginationControlId = 0;
-  let pageFocusTimers = [];
-
-  try {
-    if ("scrollRestoration" in window.history) {
-      window.history.scrollRestoration = "manual";
-    }
-  } catch (error) {}
 
   function savedTheme() {
     try {
@@ -158,45 +151,10 @@
     }
   }
 
-  function focusPageStart() {
-    const heading = document.getElementById("page-title");
-    const target = document.getElementById("page-start") || heading;
-    if (target && typeof target.focus === "function") {
-      try {
-        (heading || target).scrollIntoView({ block: "start", inline: "nearest" });
-      } catch (error) {
-        window.scrollTo(0, 0);
-      }
-      try {
-        target.focus({ preventScroll: true });
-      } catch (error) {
-        target.focus();
-      }
-      return document.activeElement === target;
-    }
-    const main = document.getElementById("main");
-    if (!main || typeof main.focus !== "function") return false;
-    main.focus();
-    return document.activeElement === main;
-  }
-
-  function cancelPageFocusSettle() {
-    pageFocusTimers.forEach((timerId) => {
-      window.clearTimeout(timerId);
-    });
-    pageFocusTimers = [];
-  }
-
-  function settlePageFocus() {
-    cancelPageFocusSettle();
-    focusPageStart();
-    [0, 50, 150, 350, 700].forEach((delay) => {
-      const timerId = window.setTimeout(() => {
-        pageFocusTimers = pageFocusTimers.filter((id) => id !== timerId);
-        window.requestAnimationFrame(focusPageStart);
-      }, delay);
-      pageFocusTimers.push(timerId);
-    });
+  function focusPageHeading() {
+    const heading = document.querySelector("#main #page-title[tabindex='-1']");
+    if (!heading || typeof heading.focus !== "function") return;
+    heading.focus();
   }
 
   function isLeftArrowKey(event) {
@@ -286,7 +244,7 @@
   function announceHistoryNavigation(event) {
     const shouldAnnounce = shouldAnnounceNavigation(event);
     if (!shouldAnnounce) return;
-    settlePageFocus();
+    focusPageHeading();
     const status = document.getElementById("navigation-status");
     window.setTimeout(() => {
       if (status) {
@@ -296,15 +254,11 @@
   }
 
   window.addEventListener("pageshow", announceHistoryNavigation);
-  window.addEventListener("pagehide", cancelPageFocusSettle);
   document.addEventListener("click", markInternalLinkNavigation, true);
 
   document.addEventListener("keydown", (event) => {
     const isBackShortcut = isLeftArrowKey(event);
     const isForwardShortcut = isRightArrowKey(event) && event.altKey;
-    if (!isBackShortcut && !isForwardShortcut) {
-      cancelPageFocusSettle();
-    }
     if (
       (!isBackShortcut && !isForwardShortcut) ||
       event.ctrlKey ||
@@ -339,8 +293,6 @@
       window.history.back();
     }
   }, true);
-
-  window.addEventListener("pointerdown", cancelPageFocusSettle, true);
 
   focusLinks.forEach((focusLink) => {
     focusLink.addEventListener("click", () => {
