@@ -2695,12 +2695,6 @@ SITE_JS = r"""(() => {
     }
   }
 
-  function focusPageHeading() {
-    const heading = document.querySelector("#main #page-title[tabindex='-1']");
-    if (!heading || typeof heading.focus !== "function") return;
-    heading.focus();
-  }
-
   function isBackForwardNavigation(event) {
     if (event && event.persisted) return true;
     try {
@@ -2773,7 +2767,6 @@ SITE_JS = r"""(() => {
     if (!shouldAnnounce) return;
     const status = document.getElementById("navigation-status");
     window.setTimeout(() => {
-      focusPageHeading();
       if (status) {
         status.textContent = navigationAnnouncementText(status);
       }

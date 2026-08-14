@@ -120,12 +120,6 @@
     }
   }
 
-  function focusPageHeading() {
-    const heading = document.querySelector("#main #page-title[tabindex='-1']");
-    if (!heading || typeof heading.focus !== "function") return;
-    heading.focus();
-  }
-
   function isBackForwardNavigation(event) {
     if (event && event.persisted) return true;
     try {
@@ -198,7 +192,6 @@
     if (!shouldAnnounce) return;
     const status = document.getElementById("navigation-status");
     window.setTimeout(() => {
-      focusPageHeading();
       if (status) {
         status.textContent = navigationAnnouncementText(status);
       }
