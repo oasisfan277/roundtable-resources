@@ -2591,6 +2591,7 @@ SITE_JS = r"""(() => {
   const resources = Array.isArray(window.ROUND_TABLE_RESOURCES) ? window.ROUND_TABLE_RESOURCES : [];
   const pageSizeOptions = [25, 50, 75, 100];
   const pageSizeStorageKey = "roundtable-resources-page-size";
+  const historyReloadStorageKey = "roundtable-history-reload";
   const linkNavigationStorageKey = "roundtable-link-navigation";
   const lastPageStorageKey = "roundtable-last-page-url";
   const lastAnnouncementStoragePrefix = "roundtable-last-navigation-announcement:";
@@ -2705,6 +2706,25 @@ SITE_JS = r"""(() => {
     }
   }
 
+  function requestHistoryReload() {
+    try {
+      sessionStorage.setItem(historyReloadStorageKey, window.location.href);
+      return true;
+    } catch (error) {
+      return false;
+    }
+  }
+
+  function takeHistoryReloadRequest() {
+    try {
+      const requestedHref = sessionStorage.getItem(historyReloadStorageKey) || "";
+      sessionStorage.removeItem(historyReloadStorageKey);
+      return requestedHref === window.location.href;
+    } catch (error) {
+      return false;
+    }
+  }
+
   function shouldAnnounceNavigation(event) {
     const backForwardNavigation = isBackForwardNavigation(event);
     let linkNavigation = false;
@@ -2763,7 +2783,12 @@ SITE_JS = r"""(() => {
   }
 
   function announceHistoryNavigation(event) {
-    const shouldAnnounce = shouldAnnounceNavigation(event);
+    if (event && event.persisted && requestHistoryReload()) {
+      window.location.reload();
+      return;
+    }
+    const historyReloaded = takeHistoryReloadRequest();
+    const shouldAnnounce = shouldAnnounceNavigation(event) || historyReloaded;
     if (!shouldAnnounce) return;
     const status = document.getElementById("navigation-status");
     window.setTimeout(() => {
