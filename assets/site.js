@@ -134,7 +134,6 @@
   document.addEventListener("keydown", (event) => {
     if (
       event.key !== "ArrowLeft" ||
-      event.altKey ||
       event.ctrlKey ||
       event.metaKey ||
       event.shiftKey ||
