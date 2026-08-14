@@ -2591,7 +2591,6 @@ SITE_JS = r"""(() => {
   const resources = Array.isArray(window.ROUND_TABLE_RESOURCES) ? window.ROUND_TABLE_RESOURCES : [];
   const pageSizeOptions = [25, 50, 75, 100];
   const pageSizeStorageKey = "roundtable-resources-page-size";
-  const announceNavigationStorageKey = "roundtable-announce-navigation";
   const linkNavigationStorageKey = "roundtable-link-navigation";
   const lastPageStorageKey = "roundtable-last-page-url";
   const lastAnnouncementStoragePrefix = "roundtable-last-navigation-announcement:";
@@ -2680,36 +2679,6 @@ SITE_JS = r"""(() => {
     });
   });
 
-  function isTypingOrControl(target) {
-    return Boolean(
-      target.closest(
-        "input, textarea, select, button, summary, [contenteditable='true'], [role='textbox']"
-      )
-    );
-  }
-
-  function sameOriginReferrer() {
-    if (!document.referrer) return "";
-    try {
-      const referrer = new URL(document.referrer);
-      if (referrer.origin === window.location.origin && referrer.href !== window.location.href) {
-        return referrer.href;
-      }
-    } catch (error) {}
-    return "";
-  }
-
-  function fallbackBackHref() {
-    const href = document.body.dataset.backHref || "";
-    if (!href) return "";
-    try {
-      const target = new URL(href, window.location.href);
-      return target.href !== window.location.href ? target.href : "";
-    } catch (error) {
-      return "";
-    }
-  }
-
   function pageLabel() {
     const heading = document.getElementById("page-title");
     const text = heading && heading.textContent ? heading.textContent.trim() : document.title.trim();
@@ -2732,14 +2701,6 @@ SITE_JS = r"""(() => {
     heading.focus();
   }
 
-  function isLeftArrowKey(event) {
-    return event.key === "ArrowLeft" || event.key === "Left" || event.code === "ArrowLeft";
-  }
-
-  function isRightArrowKey(event) {
-    return event.key === "ArrowRight" || event.key === "Right" || event.code === "ArrowRight";
-  }
-
   function isBackForwardNavigation(event) {
     if (event && event.persisted) return true;
     try {
@@ -2750,21 +2711,12 @@ SITE_JS = r"""(() => {
     }
   }
 
-  function requestNavigationAnnouncement() {
-    try {
-      sessionStorage.setItem(announceNavigationStorageKey, "1");
-    } catch (error) {}
-  }
-
   function shouldAnnounceNavigation(event) {
     const backForwardNavigation = isBackForwardNavigation(event);
-    let requestedNavigation = false;
     let linkNavigation = false;
     let sameSitePageChange = false;
     try {
-      requestedNavigation = sessionStorage.getItem(announceNavigationStorageKey) === "1";
       linkNavigation = sessionStorage.getItem(linkNavigationStorageKey) === "1";
-      sessionStorage.removeItem(announceNavigationStorageKey);
       sessionStorage.removeItem(linkNavigationStorageKey);
 
       const currentPage = pageHrefWithoutHash(window.location.href);
@@ -2774,7 +2726,7 @@ SITE_JS = r"""(() => {
       }
       sameSitePageChange = Boolean(previousPage && currentPage && previousPage !== currentPage);
     } catch (error) {}
-    return backForwardNavigation || requestedNavigation || (sameSitePageChange && !linkNavigation);
+    return backForwardNavigation || (sameSitePageChange && !linkNavigation);
   }
 
   function navigationAnnouncementText(status) {
@@ -2819,55 +2771,17 @@ SITE_JS = r"""(() => {
   function announceHistoryNavigation(event) {
     const shouldAnnounce = shouldAnnounceNavigation(event);
     if (!shouldAnnounce) return;
-    focusPageHeading();
     const status = document.getElementById("navigation-status");
     window.setTimeout(() => {
+      focusPageHeading();
       if (status) {
         status.textContent = navigationAnnouncementText(status);
       }
-    }, 350);
+    }, 0);
   }
 
   window.addEventListener("pageshow", announceHistoryNavigation);
   document.addEventListener("click", markInternalLinkNavigation, true);
-
-  document.addEventListener("keydown", (event) => {
-    const isBackShortcut = isLeftArrowKey(event);
-    const isForwardShortcut = isRightArrowKey(event) && event.altKey;
-    if (
-      (!isBackShortcut && !isForwardShortcut) ||
-      event.ctrlKey ||
-      event.metaKey ||
-      event.shiftKey ||
-      event.repeat ||
-      isTypingOrControl(event.target)
-    ) {
-      return;
-    }
-
-    if (isForwardShortcut) {
-      event.preventDefault();
-      requestNavigationAnnouncement();
-      window.history.forward();
-      return;
-    }
-
-    const referrer = sameOriginReferrer();
-    const fallback = fallbackBackHref();
-    if (referrer && window.history.length > 1) {
-      event.preventDefault();
-      requestNavigationAnnouncement();
-      window.history.back();
-    } else if (referrer || fallback) {
-      event.preventDefault();
-      requestNavigationAnnouncement();
-      window.location.href = referrer || fallback;
-    } else if (window.history.length > 1) {
-      event.preventDefault();
-      requestNavigationAnnouncement();
-      window.history.back();
-    }
-  }, true);
 
   focusLinks.forEach((focusLink) => {
     focusLink.addEventListener("click", () => {
