@@ -173,7 +173,7 @@
 
   function settlePageFocus() {
     cancelPageFocusSettle();
-    [0, 100, 350, 800, 1400].forEach((delay) => {
+    [0, 75, 175, 350, 650, 1000, 1400, 1900, 2500, 3200].forEach((delay) => {
       const timerId = window.setTimeout(() => {
         pageFocusTimers = pageFocusTimers.filter((id) => id !== timerId);
         focusPageStart();
@@ -278,12 +278,13 @@
   }
 
   window.addEventListener("pageshow", announceHistoryNavigation);
+  window.addEventListener("pagehide", cancelPageFocusSettle);
   document.addEventListener("click", markInternalLinkNavigation, true);
 
   document.addEventListener("keydown", (event) => {
     const isBackShortcut = isLeftArrowKey(event);
     const isForwardShortcut = isRightArrowKey(event) && event.altKey;
-    if (event.key === "Tab") {
+    if (!isBackShortcut && !isForwardShortcut) {
       cancelPageFocusSettle();
     }
     if (
