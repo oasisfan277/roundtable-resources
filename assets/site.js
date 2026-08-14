@@ -120,6 +120,17 @@
     return "";
   }
 
+  function fallbackBackHref() {
+    const href = document.body.dataset.backHref || "";
+    if (!href) return "";
+    try {
+      const target = new URL(href, window.location.href);
+      return target.href !== window.location.href ? target.href : "";
+    } catch (error) {
+      return "";
+    }
+  }
+
   document.addEventListener("keydown", (event) => {
     if (
       event.key !== "ArrowLeft" ||
@@ -134,12 +145,16 @@
     }
 
     const referrer = sameOriginReferrer();
-    if (window.history.length > 1) {
+    const fallback = fallbackBackHref();
+    if (referrer && window.history.length > 1) {
       event.preventDefault();
       window.history.back();
-    } else if (referrer) {
+    } else if (referrer || fallback) {
       event.preventDefault();
-      window.location.href = referrer;
+      window.location.href = referrer || fallback;
+    } else if (window.history.length > 1) {
+      event.preventDefault();
+      window.history.back();
     }
   });
 

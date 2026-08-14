@@ -978,6 +978,7 @@ def render_page_shell(
     skip_href: str = "#main",
     extra_skip_links: list[tuple[str, str]] | None = None,
     header_extra: str = "",
+    back_href: str = "",
 ) -> str:
     asset_styles = asset_href(from_page, Path("assets/styles.css"))
     asset_data = asset_href(from_page, Path("assets/search-data.js"))
@@ -986,6 +987,7 @@ def render_page_shell(
     asset_mark = relative_href(from_page, Path("assets/site-mark.svg"))
     home_href = relative_href(from_page, Path("index.html"))
     root_href = site_root_href(from_page)
+    back_attr = f' data-back-href="{html.escape(back_href, quote=True)}"' if back_href else ""
     intro = f'\n        <p class="intro">{html.escape(description)}</p>' if description else ""
     intro = f"{intro}{header_extra}"
     meta_description = description or title
@@ -1023,7 +1025,7 @@ def render_page_shell(
   <script src="{asset_data}" defer></script>
   <script src="{asset_script}" defer></script>
 </head>
-<body data-site-root="{root_href}">
+<body data-site-root="{root_href}"{back_attr}>
   <nav class="skip-links" aria-label="Skip links">
 {skip_link_markup}
   </nav>
@@ -1243,6 +1245,16 @@ def render_breadcrumbs(page: CategoryPage, pages_by_dir: dict[Path, CategoryPage
 """
 
 
+def back_href_for_category_page(page: CategoryPage, pages_by_dir: dict[Path, CategoryPage]) -> str:
+    parent = page.source_dir.parent
+    parent_page = pages_by_dir.get(parent)
+    if parent.parts and parent_page:
+        return relative_href(page.page_rel, parent_page.page_rel)
+    if page.source_dir.parts:
+        return f"{relative_href(page.page_rel, Path('index.html'))}#{slugify(page.source_dir.parts[0])}"
+    return relative_href(page.page_rel, Path("index.html"))
+
+
 def render_archive_home_link(from_page: Path) -> str:
     href = relative_href(from_page, ARCHIVE_PAGE_REL)
     return f"""
@@ -1412,6 +1424,7 @@ def render_archive_page() -> str:
         from_page=ARCHIVE_PAGE_REL,
         skip_text="Skip to archive instructions",
         skip_href="#archive-instructions",
+        back_href="index.html",
     )
 
 
@@ -1548,6 +1561,7 @@ def render_category_page(page: CategoryPage, pages: list[CategoryPage], pages_by
         skip_text=skip_text,
         skip_href=skip_href,
         extra_skip_links=extra_skip_links,
+        back_href=back_href_for_category_page(page, pages_by_dir),
     )
 
 
@@ -1568,6 +1582,7 @@ def render_search_page(pages: list[CategoryPage]) -> str:
         from_page=Path("search.html"),
         skip_text="Skip to search",
         skip_href="#search-heading",
+        back_href="index.html",
     )
 
 
@@ -2666,6 +2681,17 @@ SITE_JS = r"""(() => {
     return "";
   }
 
+  function fallbackBackHref() {
+    const href = document.body.dataset.backHref || "";
+    if (!href) return "";
+    try {
+      const target = new URL(href, window.location.href);
+      return target.href !== window.location.href ? target.href : "";
+    } catch (error) {
+      return "";
+    }
+  }
+
   document.addEventListener("keydown", (event) => {
     if (
       event.key !== "ArrowLeft" ||
@@ -2680,12 +2706,16 @@ SITE_JS = r"""(() => {
     }
 
     const referrer = sameOriginReferrer();
-    if (window.history.length > 1) {
+    const fallback = fallbackBackHref();
+    if (referrer && window.history.length > 1) {
       event.preventDefault();
       window.history.back();
-    } else if (referrer) {
+    } else if (referrer || fallback) {
       event.preventDefault();
-      window.location.href = referrer;
+      window.location.href = referrer || fallback;
+    } else if (window.history.length > 1) {
+      event.preventDefault();
+      window.history.back();
     }
   });
 
