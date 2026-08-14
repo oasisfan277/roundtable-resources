@@ -137,6 +137,12 @@
     return text || "this page";
   }
 
+  function focusPageTitle() {
+    const heading = document.getElementById("page-title");
+    if (!heading || typeof heading.focus !== "function") return;
+    heading.focus();
+  }
+
   function isBackForwardNavigation(event) {
     if (event && event.persisted) return true;
     try {
@@ -167,10 +173,12 @@
   function announceHistoryNavigation(event) {
     if (!shouldAnnounceNavigation(event)) return;
     const status = document.getElementById("navigation-status");
-    if (!status) return;
-    status.textContent = "";
+    if (status) status.textContent = "";
     window.setTimeout(() => {
-      status.textContent = `Now on ${pageLabel()}.`;
+      focusPageTitle();
+      if (status) {
+        status.textContent = `Now on ${pageLabel()}.`;
+      }
     }, 100);
   }
 
