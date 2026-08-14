@@ -1073,7 +1073,7 @@ def render_page_shell(
         <nav class="site-home-nav" aria-label="Homepage">
           <a href="{home_href}">Home page</a>
         </nav>
-        <h1 id="page-title" tabindex="-1">{html.escape(title)}</h1>{intro}
+        <h1 id="page-title"><a id="page-start" class="page-title-focus-target" href="#main" tabindex="-1">{html.escape(title)}</a></h1>{intro}
       </div>
     </div>
   </header>
@@ -1923,6 +1923,16 @@ summary:focus-visible {
   border-radius: 6px;
 }
 
+.page-title-focus-target {
+  color: inherit;
+  text-decoration: none;
+}
+
+.page-title-focus-target:hover {
+  color: inherit;
+  text-decoration: underline;
+}
+
 .site-header {
   background: var(--surface);
   border-bottom: 1px solid var(--line);
@@ -2731,37 +2741,21 @@ SITE_JS = r"""(() => {
     }
   }
 
-  function firstPageHeading() {
-    return document.querySelector("h1, h2, h3, h4, h5, h6");
-  }
-
-  function moveToHeadingAnchor(heading) {
-    if (!heading || !heading.id) return;
-    const targetHash = `#${heading.id}`;
-    if (window.location.hash === targetHash) return;
-    try {
-      window.location.replace(targetHash);
-    } catch (error) {}
-  }
-
-  function focusFirstPageHeading() {
-    const heading = firstPageHeading();
-    if (heading && typeof heading.focus === "function") {
-      if (!heading.hasAttribute("tabindex")) {
-        heading.setAttribute("tabindex", "-1");
-      }
-      moveToHeadingAnchor(heading);
+  function focusPageStart() {
+    const heading = document.getElementById("page-title");
+    const target = document.getElementById("page-start") || heading;
+    if (target && typeof target.focus === "function") {
       try {
-        heading.scrollIntoView({ block: "start", inline: "nearest" });
+        (heading || target).scrollIntoView({ block: "start", inline: "nearest" });
       } catch (error) {
         window.scrollTo(0, 0);
       }
       try {
-        heading.focus({ preventScroll: true });
+        target.focus({ preventScroll: true });
       } catch (error) {
-        heading.focus();
+        target.focus();
       }
-      return document.activeElement === heading;
+      return document.activeElement === target;
     }
     const main = document.getElementById("main");
     if (!main || typeof main.focus !== "function") return false;
@@ -2778,11 +2772,11 @@ SITE_JS = r"""(() => {
 
   function settlePageFocus() {
     cancelPageFocusSettle();
-    focusFirstPageHeading();
-    [0, 50, 100, 200, 350, 500, 750, 1000, 1400, 1900, 2500, 3200, 4200, 5500, 7000].forEach((delay) => {
+    focusPageStart();
+    [0, 50, 150, 350, 700].forEach((delay) => {
       const timerId = window.setTimeout(() => {
         pageFocusTimers = pageFocusTimers.filter((id) => id !== timerId);
-        window.requestAnimationFrame(focusFirstPageHeading);
+        window.requestAnimationFrame(focusPageStart);
       }, delay);
       pageFocusTimers.push(timerId);
     });
@@ -2874,8 +2868,8 @@ SITE_JS = r"""(() => {
 
   function announceHistoryNavigation(event) {
     const shouldAnnounce = shouldAnnounceNavigation(event);
-    settlePageFocus();
     if (!shouldAnnounce) return;
+    settlePageFocus();
     const status = document.getElementById("navigation-status");
     window.setTimeout(() => {
       if (status) {
@@ -2891,7 +2885,7 @@ SITE_JS = r"""(() => {
   document.addEventListener("keydown", (event) => {
     const isBackShortcut = isLeftArrowKey(event);
     const isForwardShortcut = isRightArrowKey(event) && event.altKey;
-    if (event.key === "Tab") {
+    if (!isBackShortcut && !isForwardShortcut) {
       cancelPageFocusSettle();
     }
     if (

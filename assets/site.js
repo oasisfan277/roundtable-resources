@@ -158,37 +158,21 @@
     }
   }
 
-  function firstPageHeading() {
-    return document.querySelector("h1, h2, h3, h4, h5, h6");
-  }
-
-  function moveToHeadingAnchor(heading) {
-    if (!heading || !heading.id) return;
-    const targetHash = `#${heading.id}`;
-    if (window.location.hash === targetHash) return;
-    try {
-      window.location.replace(targetHash);
-    } catch (error) {}
-  }
-
-  function focusFirstPageHeading() {
-    const heading = firstPageHeading();
-    if (heading && typeof heading.focus === "function") {
-      if (!heading.hasAttribute("tabindex")) {
-        heading.setAttribute("tabindex", "-1");
-      }
-      moveToHeadingAnchor(heading);
+  function focusPageStart() {
+    const heading = document.getElementById("page-title");
+    const target = document.getElementById("page-start") || heading;
+    if (target && typeof target.focus === "function") {
       try {
-        heading.scrollIntoView({ block: "start", inline: "nearest" });
+        (heading || target).scrollIntoView({ block: "start", inline: "nearest" });
       } catch (error) {
         window.scrollTo(0, 0);
       }
       try {
-        heading.focus({ preventScroll: true });
+        target.focus({ preventScroll: true });
       } catch (error) {
-        heading.focus();
+        target.focus();
       }
-      return document.activeElement === heading;
+      return document.activeElement === target;
     }
     const main = document.getElementById("main");
     if (!main || typeof main.focus !== "function") return false;
@@ -205,11 +189,11 @@
 
   function settlePageFocus() {
     cancelPageFocusSettle();
-    focusFirstPageHeading();
-    [0, 50, 100, 200, 350, 500, 750, 1000, 1400, 1900, 2500, 3200, 4200, 5500, 7000].forEach((delay) => {
+    focusPageStart();
+    [0, 50, 150, 350, 700].forEach((delay) => {
       const timerId = window.setTimeout(() => {
         pageFocusTimers = pageFocusTimers.filter((id) => id !== timerId);
-        window.requestAnimationFrame(focusFirstPageHeading);
+        window.requestAnimationFrame(focusPageStart);
       }, delay);
       pageFocusTimers.push(timerId);
     });
@@ -301,8 +285,8 @@
 
   function announceHistoryNavigation(event) {
     const shouldAnnounce = shouldAnnounceNavigation(event);
-    settlePageFocus();
     if (!shouldAnnounce) return;
+    settlePageFocus();
     const status = document.getElementById("navigation-status");
     window.setTimeout(() => {
       if (status) {
@@ -318,7 +302,7 @@
   document.addEventListener("keydown", (event) => {
     const isBackShortcut = isLeftArrowKey(event);
     const isForwardShortcut = isRightArrowKey(event) && event.altKey;
-    if (event.key === "Tab") {
+    if (!isBackShortcut && !isForwardShortcut) {
       cancelPageFocusSettle();
     }
     if (
