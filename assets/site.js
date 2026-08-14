@@ -162,12 +162,22 @@
     return document.querySelector("h1, h2, h3, h4, h5, h6");
   }
 
+  function moveToHeadingAnchor(heading) {
+    if (!heading || !heading.id) return;
+    const targetHash = `#${heading.id}`;
+    if (window.location.hash === targetHash) return;
+    try {
+      window.location.replace(targetHash);
+    } catch (error) {}
+  }
+
   function focusFirstPageHeading() {
     const heading = firstPageHeading();
     if (heading && typeof heading.focus === "function") {
       if (!heading.hasAttribute("tabindex")) {
         heading.setAttribute("tabindex", "-1");
       }
+      moveToHeadingAnchor(heading);
       try {
         heading.scrollIntoView({ block: "start", inline: "nearest" });
       } catch (error) {
@@ -195,6 +205,7 @@
 
   function settlePageFocus() {
     cancelPageFocusSettle();
+    focusFirstPageHeading();
     [0, 50, 100, 200, 350, 500, 750, 1000, 1400, 1900, 2500, 3200, 4200, 5500, 7000].forEach((delay) => {
       const timerId = window.setTimeout(() => {
         pageFocusTimers = pageFocusTimers.filter((id) => id !== timerId);
@@ -289,9 +300,10 @@
   }
 
   function announceHistoryNavigation(event) {
-    if (!shouldAnnounceNavigation(event)) return;
-    const status = document.getElementById("navigation-status");
+    const shouldAnnounce = shouldAnnounceNavigation(event);
     settlePageFocus();
+    if (!shouldAnnounce) return;
+    const status = document.getElementById("navigation-status");
     window.setTimeout(() => {
       if (status) {
         status.textContent = navigationAnnouncementText(status);
