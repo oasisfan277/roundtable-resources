@@ -2731,9 +2731,16 @@ SITE_JS = r"""(() => {
     }
   }
 
-  function focusPageStart() {
-    const heading = document.getElementById("page-title");
+  function firstPageHeading() {
+    return document.querySelector("h1, h2, h3, h4, h5, h6");
+  }
+
+  function focusFirstPageHeading() {
+    const heading = firstPageHeading();
     if (heading && typeof heading.focus === "function") {
+      if (!heading.hasAttribute("tabindex")) {
+        heading.setAttribute("tabindex", "-1");
+      }
       try {
         heading.scrollIntoView({ block: "start", inline: "nearest" });
       } catch (error) {
@@ -2761,10 +2768,10 @@ SITE_JS = r"""(() => {
 
   function settlePageFocus() {
     cancelPageFocusSettle();
-    [0, 75, 175, 350, 650, 1000, 1400, 1900, 2500, 3200].forEach((delay) => {
+    [0, 50, 100, 200, 350, 500, 750, 1000, 1400, 1900, 2500, 3200, 4200, 5500, 7000].forEach((delay) => {
       const timerId = window.setTimeout(() => {
         pageFocusTimers = pageFocusTimers.filter((id) => id !== timerId);
-        focusPageStart();
+        window.requestAnimationFrame(focusFirstPageHeading);
       }, delay);
       pageFocusTimers.push(timerId);
     });
@@ -2872,7 +2879,7 @@ SITE_JS = r"""(() => {
   document.addEventListener("keydown", (event) => {
     const isBackShortcut = isLeftArrowKey(event);
     const isForwardShortcut = isRightArrowKey(event) && event.altKey;
-    if (!isBackShortcut && !isForwardShortcut) {
+    if (event.key === "Tab") {
       cancelPageFocusSettle();
     }
     if (
