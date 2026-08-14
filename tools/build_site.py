@@ -1026,6 +1026,7 @@ def render_page_shell(
   <script src="{asset_script}" defer></script>
 </head>
 <body data-site-root="{root_href}"{back_attr}>
+  <div id="navigation-status" class="visually-hidden" role="status" aria-live="polite" aria-atomic="true"></div>
   <nav class="skip-links" aria-label="Skip links">
 {skip_link_markup}
   </nav>
@@ -1890,6 +1891,17 @@ summary:focus-visible {
   box-shadow: 0 0 0 7px var(--focus-bg);
 }
 
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 .skip-links {
   position: absolute;
   left: 1rem;
@@ -2692,6 +2704,51 @@ SITE_JS = r"""(() => {
     }
   }
 
+  function pageLabel() {
+    const heading = document.getElementById("page-title");
+    const text = heading && heading.textContent ? heading.textContent.trim() : document.title.trim();
+    return text || "this page";
+  }
+
+  function isBackForwardNavigation(event) {
+    if (event && event.persisted) return true;
+    try {
+      const entries = performance.getEntriesByType("navigation");
+      return entries.length > 0 && entries[0].type === "back_forward";
+    } catch (error) {
+      return false;
+    }
+  }
+
+  function requestNavigationAnnouncement() {
+    try {
+      sessionStorage.setItem("roundtable-announce-navigation", "1");
+    } catch (error) {}
+  }
+
+  function shouldAnnounceNavigation(event) {
+    if (isBackForwardNavigation(event)) return true;
+    try {
+      if (sessionStorage.getItem("roundtable-announce-navigation") === "1") {
+        sessionStorage.removeItem("roundtable-announce-navigation");
+        return true;
+      }
+    } catch (error) {}
+    return false;
+  }
+
+  function announceHistoryNavigation(event) {
+    if (!shouldAnnounceNavigation(event)) return;
+    const status = document.getElementById("navigation-status");
+    if (!status) return;
+    status.textContent = "";
+    window.setTimeout(() => {
+      status.textContent = `Now on ${pageLabel()}.`;
+    }, 100);
+  }
+
+  window.addEventListener("pageshow", announceHistoryNavigation);
+
   document.addEventListener("keydown", (event) => {
     if (
       event.key !== "ArrowLeft" ||
@@ -2708,12 +2765,15 @@ SITE_JS = r"""(() => {
     const fallback = fallbackBackHref();
     if (referrer && window.history.length > 1) {
       event.preventDefault();
+      requestNavigationAnnouncement();
       window.history.back();
     } else if (referrer || fallback) {
       event.preventDefault();
+      requestNavigationAnnouncement();
       window.location.href = referrer || fallback;
     } else if (window.history.length > 1) {
       event.preventDefault();
+      requestNavigationAnnouncement();
       window.history.back();
     }
   });
