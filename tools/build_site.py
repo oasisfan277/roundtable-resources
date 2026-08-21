@@ -924,13 +924,12 @@ def render_resource(resource: Resource, from_page: Path, show_subcategory: bool 
     meta = " - ".join(html.escape(part) for part in meta_parts)
     href = relative_href(from_page, Path(resource.href)) if resource.downloadable else resource.href
     download_attr = f' download="{html.escape(resource.download_name, quote=True)}"' if resource.downloadable else ""
-    link_attrs = "" if resource.downloadable else ' target="_blank" rel="noopener noreferrer"'
     title_markup, title_lang_attr = render_title_text(resource.title, resource.source_rel, resource.href)
     meta_line = f'\n  <span class="resource-meta">{meta}</span>' if meta else ""
     return "\n".join(
         (
             f'<li class="resource-item" data-resource data-search="{html.escape(resource.search_text, quote=True)}">',
-            f'  <a href="{html.escape(href, quote=True)}"{download_attr}{link_attrs}{title_lang_attr}>{title_markup}</a>{meta_line}',
+            f'  <a href="{html.escape(href, quote=True)}"{download_attr}{title_lang_attr}>{title_markup}</a>{meta_line}',
             "</li>",
         )
     )
@@ -1264,7 +1263,7 @@ def render_archive_home_link(from_page: Path) -> str:
     <section class="archive-panel" aria-labelledby="archive-heading">
       <h2 id="archive-heading" tabindex="-1">The RoundTable archive</h2>
       <p>Read the instructions for downloading and importing the complete RoundTable list archive from January 2015 to July 2026 into Mozilla Thunderbird.</p>
-      <p><a href="{href}" target="_blank" rel="noopener noreferrer">The RoundTable archive from January 2015 to July 2026</a></p>
+      <p><a href="{href}">The RoundTable archive from January 2015 to July 2026</a></p>
     </section>
 """
 
@@ -1275,7 +1274,7 @@ def render_community_home_link() -> str:
     <section class="community-panel" aria-labelledby="community-heading">
       <h2 id="community-heading" tabindex="-1">The RoundTable mailing list</h2>
       <p>Join the Google Group for blind and low vision translators, interpreters, language professionals, students, teachers and interested colleagues.</p>
-      <p><a href="{group_href}" target="_blank" rel="noopener noreferrer">Visit the RoundTable Google Group</a></p>
+      <p><a href="{group_href}">Visit the RoundTable Google Group</a></p>
     </section>
 """
 
@@ -1452,7 +1451,7 @@ def render_note_inline(text: str) -> str:
             url = url[:-1]
         escaped_url = html.escape(url)
         output.append(
-            f'<a href="{html.escape(url, quote=True)}" target="_blank" rel="noopener noreferrer">{escaped_url}</a>'
+            f'<a href="{html.escape(url, quote=True)}">{escaped_url}</a>'
         )
         output.append(html.escape(trailing))
         position = match.end()
@@ -3151,9 +3150,6 @@ SITE_JS = r"""(() => {
     link.href = itemHref(item);
     if (item.downloadable) {
       link.setAttribute("download", item.downloadName || "");
-    } else {
-      link.target = "_blank";
-      link.rel = "noopener noreferrer";
     }
     appendTitleText(link, item);
     listItem.append(link);

@@ -576,9 +576,6 @@
     link.href = itemHref(item);
     if (item.downloadable) {
       link.setAttribute("download", item.downloadName || "");
-    } else {
-      link.target = "_blank";
-      link.rel = "noopener noreferrer";
     }
     appendTitleText(link, item);
     listItem.append(link);
