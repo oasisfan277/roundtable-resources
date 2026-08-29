@@ -83,6 +83,7 @@ TRAILING_URL_PUNCTUATION = ".,;:!?)\"]}"
 RESOURCE_TITLE_REPLACEMENTS = {
     "eole, audiobooks for French speakers": "Éole, audiobooks for French speakers",
     "eole, livres d'audio": "Éole, livres d'audio",
+    "Laurel Wheeler Foundation, provides international relief for the blind and visually impaired through the gift of technology, training and other resources.": "Laurel Wheeler Foundation",
 }
 LANGUAGE_TITLE_SEGMENTS: dict[str, tuple[tuple[str, str], ...]] = {
     "2 Heures de Perdues": (("fr", "2 Heures de Perdues"),),
