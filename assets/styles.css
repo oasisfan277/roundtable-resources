@@ -732,11 +732,12 @@ button:hover {
   display: block;
   min-height: 2.75rem;
   max-width: 100%;
-  overflow: hidden;
+  overflow: visible;
+  overflow-wrap: anywhere;
   padding: 0.35rem 0;
-  text-overflow: ellipsis;
+  text-overflow: clip;
   vertical-align: bottom;
-  white-space: nowrap;
+  white-space: normal;
 }
 
 .resource-item:focus-within a,
