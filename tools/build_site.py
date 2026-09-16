@@ -22,7 +22,7 @@ SOURCE_DIR = SITE_DIR.parent / "resources"
 DOWNLOADS_DIR = SITE_DIR / "downloads"
 ASSETS_DIR = SITE_DIR / "assets"
 CATEGORIES_DIR = SITE_DIR / "categories"
-CONTACT_EMAIL_PATH = SITE_DIR / "tools" / "contact-email.txt"
+CONTACT_EMAIL_PATH = SITE_DIR.parent / "contact-email.txt"
 ARCHIVE_PAGE_REL = Path("roundtable-archive.html")
 ARCHIVE_SOURCE_PATH = SITE_DIR / "The Roundtable archive" / "page and instructions for importing the list archive into Mozilla Thunderbird.txt"
 ARCHIVE_DOWNLOAD_URL = "https://drive.usercontent.google.com/download?id=1iuu-cuLNVUHtBxwHuudjLYXmcY5CdMqz&export=download&confirm=t"
@@ -38,7 +38,6 @@ PUBLISH_PATHS = (
     "categories",
     "downloads",
     "tools/build_site.py",
-    "tools/contact-email.txt",
 )
 ASSET_VERSIONS: dict[str, str] = {}
 
@@ -3383,6 +3382,7 @@ def prompt_for_contact_email() -> None:
             continue
         break
     saved_value = f"{value}\n" if value else "# Contact link disabled.\n"
+    CONTACT_EMAIL_PATH.parent.mkdir(parents=True, exist_ok=True)
     CONTACT_EMAIL_PATH.write_text(saved_value, encoding="utf-8")
     print("Contact email saved." if value else "Contact link removed.")
 

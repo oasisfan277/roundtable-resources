@@ -4,3 +4,4 @@ server.log
 server.err.log
 *.mbox
 The Roundtable archive/
+tools/contact-email.txt

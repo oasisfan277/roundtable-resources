@@ -28,7 +28,7 @@ To enter or change the address used by the **Contact me** link:
 python .\tools\build_site.py --set-contact-email
 ```
 
-The command prompts for the address, saves it, and publishes a **Contact me** link in the footer of every page. Leave the prompt blank to remove the link.
+The command prompts for the address, saves it outside the website repository in the parent `the RoundTable` folder, and publishes a **Contact me** link in the footer of every page. Leave the prompt blank to remove the link.
 
 To use a custom commit message:
 
