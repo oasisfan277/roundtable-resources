@@ -771,6 +771,11 @@ button:hover {
   color: var(--muted);
 }
 
+.site-footer a {
+  display: inline-block;
+  font-weight: 700;
+}
+
 [hidden] {
   display: none !important;
 }

@@ -1,0 +1,1 @@
+# Run python .\tools\build_site.py --set-contact-email to enter the contact address.

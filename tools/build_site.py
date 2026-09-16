@@ -21,6 +21,7 @@ SOURCE_DIR = SITE_DIR.parent / "resources"
 DOWNLOADS_DIR = SITE_DIR / "downloads"
 ASSETS_DIR = SITE_DIR / "assets"
 CATEGORIES_DIR = SITE_DIR / "categories"
+CONTACT_EMAIL_PATH = SITE_DIR / "tools" / "contact-email.txt"
 ARCHIVE_PAGE_REL = Path("roundtable-archive.html")
 ARCHIVE_SOURCE_PATH = SITE_DIR / "The Roundtable archive" / "page and instructions for importing the list archive into Mozilla Thunderbird.txt"
 ARCHIVE_DOWNLOAD_URL = "https://drive.usercontent.google.com/download?id=1iuu-cuLNVUHtBxwHuudjLYXmcY5CdMqz&export=download&confirm=t"
@@ -36,6 +37,7 @@ PUBLISH_PATHS = (
     "categories",
     "downloads",
     "tools/build_site.py",
+    "tools/contact-email.txt",
 )
 ASSET_VERSIONS: dict[str, str] = {}
 
@@ -80,6 +82,7 @@ TYPE_LABELS = {
 EXCLUDED_SOURCE_EXTENSIONS = {".mbox"}
 NOTE_URL_RE = re.compile(r"https?://[^\s<]+")
 TRAILING_URL_PUNCTUATION = ".,;:!?)\"]}"
+CONTACT_EMAIL_RE = re.compile(r"^[^@\s<>\"(),;:]+@[^@\s<>\"(),;:]+$")
 RESOURCE_TITLE_REPLACEMENTS = {
     "eole, audiobooks for French speakers": "Éole, audiobooks for French speakers",
     "eole, livres d'audio": "Éole, livres d'audio",
@@ -988,6 +991,16 @@ def render_page_shell(
     home_href = relative_href(from_page, Path("index.html"))
     root_href = site_root_href(from_page)
     back_attr = f' data-back-href="{html.escape(back_href, quote=True)}"' if back_href else ""
+    contact_email = load_contact_email()
+    contact_footer = "\n\n"
+    if contact_email:
+        contact_href = html.escape(f"mailto:{contact_email}", quote=True)
+        contact_footer = f"""
+
+  <footer class="site-footer">
+    <p><a href="{contact_href}">Contact me</a></p>
+  </footer>
+"""
     intro = f'\n        <p class="intro">{html.escape(description)}</p>' if description else ""
     intro = f"{intro}{header_extra}"
     meta_description = description or title
@@ -1083,9 +1096,7 @@ def render_page_shell(
       {content}
       <p class="back-to-top"><a href="#page-title">Back to top</a></p>
     </div>
-  </main>
-
-</body>
+  </main>{contact_footer}</body>
 </html>
 """
 
@@ -2500,6 +2511,11 @@ button:hover {
   color: var(--muted);
 }
 
+.site-footer a {
+  display: inline-block;
+  font-weight: 700;
+}
+
 [hidden] {
   display: none !important;
 }
@@ -3290,6 +3306,11 @@ def parse_args() -> argparse.Namespace:
         help="Build the website files without committing or pushing to GitHub.",
     )
     parser.add_argument(
+        "--set-contact-email",
+        action="store_true",
+        help="Prompt for the email address used by the Contact me link.",
+    )
+    parser.add_argument(
         "--remote",
         default="origin",
         help="Git remote to push to after building. Defaults to origin.",
@@ -3305,6 +3326,40 @@ def parse_args() -> argparse.Namespace:
         help="Commit message to use when the generated website changed.",
     )
     return parser.parse_args()
+
+
+def validate_contact_email(value: str) -> str:
+    email_address = value.strip()
+    if not CONTACT_EMAIL_RE.fullmatch(email_address):
+        raise ValueError("Enter one email address in the form name@example.com.")
+    return email_address
+
+
+def load_contact_email() -> str:
+    if not CONTACT_EMAIL_PATH.exists():
+        return ""
+
+    for line in CONTACT_EMAIL_PATH.read_text(encoding="utf-8-sig").splitlines():
+        value = line.strip()
+        if value and not value.startswith("#"):
+            return validate_contact_email(value)
+    return ""
+
+
+def prompt_for_contact_email() -> None:
+    print("The contact address will be visible to visitors in the website link.")
+    while True:
+        value = input("Enter the contact email address, or leave blank to remove the link: ").strip()
+        if not value:
+            break
+        try:
+            value = validate_contact_email(value)
+        except ValueError as error:
+            print(error)
+            continue
+        break
+    CONTACT_EMAIL_PATH.write_text(f"{value}\n", encoding="utf-8")
+    print("Contact email saved." if value else "Contact link removed.")
 
 
 def run_git(args: list[str]) -> str:
@@ -3414,6 +3469,8 @@ def build_site() -> tuple[int, int]:
 
 def main() -> None:
     args = parse_args()
+    if args.set_contact_email:
+        prompt_for_contact_email()
     build_site()
     if not args.local_only:
         publish_site(args.remote, args.branch, args.message)

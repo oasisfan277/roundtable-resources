@@ -22,6 +22,14 @@ To rebuild locally without publishing:
 python .\tools\build_site.py --local-only
 ```
 
+To enter or change the address used by the **Contact me** link:
+
+```powershell
+python .\tools\build_site.py --set-contact-email
+```
+
+The command prompts for the address, saves it, and publishes a **Contact me** link in the footer of every page. Leave the prompt blank to remove the link.
+
 To use a custom commit message:
 
 ```powershell
