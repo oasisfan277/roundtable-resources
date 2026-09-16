@@ -9,6 +9,7 @@ import os
 import re
 import shutil
 import subprocess
+import sys
 import unicodedata
 from collections import defaultdict
 from dataclasses import dataclass
@@ -3346,6 +3347,16 @@ def load_contact_email() -> str:
     return ""
 
 
+def contact_email_is_configured() -> bool:
+    if not CONTACT_EMAIL_PATH.exists():
+        return False
+
+    lines = CONTACT_EMAIL_PATH.read_text(encoding="utf-8-sig").splitlines()
+    if any(line.strip() == "# Contact link disabled." for line in lines):
+        return True
+    return any(line.strip() and not line.strip().startswith("#") for line in lines)
+
+
 def prompt_for_contact_email() -> None:
     print("The contact address will be visible to visitors in the website link.")
     while True:
@@ -3358,7 +3369,8 @@ def prompt_for_contact_email() -> None:
             print(error)
             continue
         break
-    CONTACT_EMAIL_PATH.write_text(f"{value}\n", encoding="utf-8")
+    saved_value = f"{value}\n" if value else "# Contact link disabled.\n"
+    CONTACT_EMAIL_PATH.write_text(saved_value, encoding="utf-8")
     print("Contact email saved." if value else "Contact link removed.")
 
 
@@ -3469,7 +3481,7 @@ def build_site() -> tuple[int, int]:
 
 def main() -> None:
     args = parse_args()
-    if args.set_contact_email:
+    if args.set_contact_email or (not contact_email_is_configured() and sys.stdin.isatty()):
         prompt_for_contact_email()
     build_site()
     if not args.local_only:

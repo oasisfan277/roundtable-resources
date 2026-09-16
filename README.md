@@ -14,7 +14,7 @@ To rebuild after changing the resources folder and publish the live GitHub Pages
 python .\tools\build_site.py
 ```
 
-That command rebuilds the local files, commits the website changes, and pushes `main` to `origin`.
+The first time it runs, the command asks for the address used by the **Contact me** link. It then rebuilds the local files, commits the website changes, and pushes `main` to `origin`.
 
 To rebuild locally without publishing:
 

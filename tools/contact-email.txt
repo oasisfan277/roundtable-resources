@@ -1,1 +1,1 @@
-# Run python .\tools\build_site.py --set-contact-email to enter the contact address.
+# The next normal build will ask for the contact address.
