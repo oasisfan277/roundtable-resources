@@ -1293,13 +1293,14 @@ def render_community_home_link() -> str:
 
 
 TEXT_EMAIL_RE = re.compile(r"[\w.!#$%&'*+/=?^_`{|}~-]+@(?:[\w-]+\.)+[\w-]{2,63}")
+ARCHIVE_CONTACT_RE = re.compile(rf"Email me at\s+(?P<email>{TEXT_EMAIL_RE.pattern})", re.IGNORECASE)
 
 
 def normalize_archive_line(line: str) -> str:
     return line.replace("â€¢", "•").strip()
 
 
-def render_archive_inline(text: str) -> str:
+def render_archive_email_addresses(text: str) -> str:
     output: list[str] = []
     position = 0
     for match in TEXT_EMAIL_RE.finditer(text):
@@ -1309,6 +1310,18 @@ def render_archive_inline(text: str) -> str:
         output.append(f'<a href="mailto:{html.escape(email_address, quote=True)}">{escaped_email}</a>')
         position = match.end()
     output.append(html.escape(text[position:]))
+    return "".join(output)
+
+
+def render_archive_inline(text: str) -> str:
+    output: list[str] = []
+    position = 0
+    for match in ARCHIVE_CONTACT_RE.finditer(text):
+        output.append(render_archive_email_addresses(text[position:match.start()]))
+        email_address = match.group("email")
+        output.append(f'<a href="mailto:{html.escape(email_address, quote=True)}">Email me</a>')
+        position = match.end()
+    output.append(render_archive_email_addresses(text[position:]))
     return "".join(output)
 
 
